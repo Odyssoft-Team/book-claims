@@ -12,6 +12,7 @@ type Tenant struct {
 	Ruc          string
 	EmailContact string
 	PhoneContact string
+	IsConfirm    bool
 	IsActive     bool
 	CreatedAt    time.Time
 	UpdatedAt    time.Time

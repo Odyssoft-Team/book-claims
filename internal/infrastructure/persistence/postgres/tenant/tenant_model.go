@@ -14,7 +14,8 @@ type TenantModel struct {
 	Ruc            string    `gorm:"column:tenant_ruc;type:varchar(20);not null;unique"`
 	EmailContact   string    `gorm:"column:tenant_email_contact;not null;unique;index"`
 	PhoneContact   string    `gorm:"column:tenant_phone_contact;not null"`
-	IsActive       bool      `gorm:"column:is_active;not null;default:true"`
+	IsConfirm      bool      `gorm:"column:is_confirm; notnull;default:false"`
+	IsActive       bool      `gorm:"column:is_active;not null;default:false"`
 	CreatedAt      time.Time `gorm:"column:created_at;type:timestamptz;not null"`
 	UpdatedAt      time.Time `gorm:"column:updated_at;type:timestamptz;not null"`
 	gorm.DeletedAt `gorm:"column:deleted_at;index"`
@@ -27,6 +28,7 @@ func (t *TenantModel) ToDomain() *model.Tenant {
 		Ruc:          t.Ruc,
 		EmailContact: t.EmailContact,
 		PhoneContact: t.PhoneContact,
+		IsConfirm:    t.IsConfirm,
 		IsActive:     t.IsActive,
 		CreatedAt:    t.CreatedAt,
 		UpdatedAt:    t.UpdatedAt,
@@ -40,6 +42,7 @@ func TenantModelFromDomain(t *model.Tenant) *TenantModel {
 		Ruc:          t.Ruc,
 		EmailContact: t.EmailContact,
 		PhoneContact: t.PhoneContact,
+		IsConfirm:    t.IsConfirm,
 		IsActive:     t.IsActive,
 		CreatedAt:    t.CreatedAt,
 		UpdatedAt:    t.UpdatedAt,

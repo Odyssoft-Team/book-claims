@@ -87,15 +87,13 @@ func SetupRouter(
 
 	}
 	{
-		privateTenant := privateApi.Group("/tenant")
-		privateTenant.Use(RoleAuthorizationMiddleware("ADMIN"))
+		privateTenant := publicApi.Group("/tenant")
 		{
 			privateTenant.POST("/", tenantHandler.CreateTenant)
 			privateTenant.GET("/:id", tenantHandler.GetTenantById)
 			privateTenant.POST("/:id/location", locationHandler.CreateLocation)
 			privateTenant.POST("/:id/api-keys", apiKeyHandler.CreateApiKey)
 		}
-
 	}
 	{
 		apiKey := privateApi.Group("api_key")
