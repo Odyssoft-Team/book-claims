@@ -81,7 +81,7 @@ func main() {
 	tenantUseCase := usecase.NewTenantUseCase(tenantRepo, roleRepo, userRepo, apiKeyRepo)
 	tenantHandler := handler.NewTenantHandler(tenantUseCase)
 
-	r := http.SetupRouter(complaintHandler, userHandler, roleHandler, locationHandler, sessionHandler, tenantHandler, apiKeyHandler, zapLogger, httpLogger, AuthLogger)
+	r := http.SetupRouter(complaintHandler, userHandler, roleHandler, locationHandler, sessionHandler, tenantHandler, apiKeyHandler, apiKeyRepo, zapLogger, httpLogger, AuthLogger)
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -3,6 +3,7 @@ package mapper
 import (
 	"claimbook-api/internal/core/domain/model"
 	"claimbook-api/internal/infrastructure/http/dto"
+	"time"
 )
 
 func CreateApiKeyDTOToDomain(c dto.CreateApiKeyDTO) *model.ApiKey {
@@ -23,8 +24,8 @@ func ApiKeyToResponseDTO(apiKey *model.ApiKey) dto.ApiKeyResponseDTO {
 		ApiKey:     apiKey.ApiKey,
 		Scope:      apiKey.Scope,
 		IsActive:   apiKey.IsActive,
-		CreatedAt:  apiKey.CreatedAt,
-		UpdatedAt:  apiKey.UpdatedAt,
+		CreatedAt:  apiKey.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt:  apiKey.UpdatedAt.UTC().Format(time.RFC3339),
 	}
 }
 

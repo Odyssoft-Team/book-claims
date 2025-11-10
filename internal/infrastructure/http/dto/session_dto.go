@@ -22,9 +22,9 @@ type ResponseSessionDTO struct {
 	RefreshToken string    `json:"refresh_token"`
 	IP           string    `json:"ip"`
 	UserAgent    string    `json:"user_agent"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
-	ExpiresAt    time.Time `json:"expires_at"`
+	CreatedAt    string    `json:"created_at"`
+	UpdatedAt    string    `json:"updated_at"`
+	ExpiresAt    string    `json:"expires_at"`
 	Revoked      bool      `json:"revoked"`
 }
 

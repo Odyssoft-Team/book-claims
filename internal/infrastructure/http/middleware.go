@@ -2,6 +2,7 @@
 
 import (
 	"bytes"
+	"claimbook-api/internal/core/port"
 	"claimbook-api/internal/infrastructure/jwt"
 	"claimbook-api/pkg/util/apperror"
 	"context"
@@ -212,5 +213,30 @@ func RoleAuthorizationMiddleware(allowedRoles ...string) gin.HandlerFunc {
 		}
 
 		c.AbortWithStatusJSON(http.StatusForbidden, gin.H{"error": "Access denied for role: " + roleStr})
+	}
+}
+
+func ApiKeyMiddleware(apiKeyRepo port.ApiKeyRepository, logger *zap.Logger) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		apiKey := c.GetHeader("X-API-Key")
+		if apiKey == "" {
+			logger.Warn("Missing API key", zap.String("ip", c.ClientIP()))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "API key required"})
+			return
+		}
+
+		valid, err := apiKeyRepo.IsValidApiKey(c.Request.Context(), apiKey)
+		if err != nil {
+			logger.Error("Failed to validate API key", zap.Error(err))
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+			return
+		}
+		if !valid {
+			logger.Warn("Invalid API key", zap.String("ip", c.ClientIP()))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
+			return
+		}
+
+		c.Next()
 	}
 }

@@ -2,7 +2,6 @@ package dto
 
 import (
 	"claimbook-api/internal/core/domain/model"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -31,13 +30,13 @@ type ComplaintResponse struct {
 	SourceID   uuid.UUID             `json:"source_id"`
 	ApiKeyID   uuid.UUID             `json:"api_key_id"`
 
-	CodePublic      string     `json:"code_public"`
-	Description     string     `json:"description"`
-	RequestedAction string     `json:"requested_action"`
-	CreatedAt       time.Time  `json:"created_at"`
-	UpdatedAt       time.Time  `json:"updated_at"`
-	ResolvedAt      *time.Time `json:"resolved_at"`
-	IsClosed        bool       `json:"is_closed"`
+	CodePublic      string `json:"code_public"`
+	Description     string `json:"description"`
+	RequestedAction string `json:"requested_action"`
+	CreatedAt       string `json:"created_at"`
+	UpdatedAt       string `json:"updated_at"`
+	ResolvedAt      string `json:"resolved_at"`
+	IsClosed        bool   `json:"is_closed"`
 }
 
 type UpdateComplaintDTO struct {

@@ -3,6 +3,7 @@ package mapper
 import (
 	"claimbook-api/internal/core/domain/model"
 	"claimbook-api/internal/infrastructure/http/dto"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -28,9 +29,9 @@ func SessionToResponseDTO(session *model.Session) *dto.ResponseSessionDTO {
 		RefreshToken: session.RefreshToken,
 		IP:           session.IP,
 		UserAgent:    session.UserAgent,
-		CreatedAt:    session.CreatedAt,
-		UpdatedAt:    session.UpdatedAt,
-		ExpiresAt:    session.ExpiresAt,
+		CreatedAt:    session.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt:    session.UpdatedAt.UTC().Format(time.RFC3339),
+		ExpiresAt:    session.ExpiresAt.UTC().Format(time.RFC3339),
 		Revoked:      session.Revoked,
 	}
 }

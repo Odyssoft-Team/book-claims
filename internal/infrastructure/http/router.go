@@ -1,6 +1,7 @@
 ﻿package http
 
 import (
+	"claimbook-api/internal/core/port"
 	"claimbook-api/internal/infrastructure/http/handler"
 
 	"github.com/gin-gonic/gin"
@@ -15,6 +16,7 @@ func SetupRouter(
 	sessionHandler *handler.AuthHandler,
 	tenantHandler *handler.TenantHandler,
 	apiKeyHandler *handler.ApiKeyHandler,
+	apiKeyRepo port.ApiKeyRepository,
 	logger *zap.Logger,
 	httpLogger *zap.Logger,
 	authLogger *zap.Logger,
@@ -29,6 +31,7 @@ func SetupRouter(
 
 	{
 		publicComplaint := publicApi.Group("/complaint")
+		publicComplaint.Use(ApiKeyMiddleware(apiKeyRepo, httpLogger))
 		{
 			publicComplaint.POST("", complaintHandler.CreateComplaint)
 			publicComplaint.GET("/code/:code", complaintHandler.GetComplaintByCodePublic)
@@ -87,12 +90,13 @@ func SetupRouter(
 
 	}
 	{
-		privateTenant := publicApi.Group("/tenant")
+		publicTenant := publicApi.Group("/tenant")
 		{
-			privateTenant.POST("/", tenantHandler.CreateTenant)
-			privateTenant.GET("/:id", tenantHandler.GetTenantById)
-			privateTenant.POST("/:id/location", locationHandler.CreateLocation)
-			privateTenant.POST("/:id/api-keys", apiKeyHandler.CreateApiKey)
+			publicTenant.POST("/", tenantHandler.CreateTenant)
+			publicTenant.GET("/:id", tenantHandler.GetTenantById)
+			publicTenant.PATCH("/:id", tenantHandler.UpdateTenant)
+			publicTenant.POST("/:id/location", locationHandler.CreateLocation)
+			publicTenant.POST("/:id/api-keys", apiKeyHandler.CreateApiKey)
 		}
 	}
 	{

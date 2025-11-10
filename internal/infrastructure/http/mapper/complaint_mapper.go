@@ -23,9 +23,11 @@ func CreateComplaintDTOToDomain(c dto.CreateComplaintDTO) *model.Complaint {
 }
 
 func ComplaintToResponseDTO(complaint *model.Complaint) dto.ComplaintResponse {
-	var resolvedAt *time.Time
-	if complaint.ResolvedAt != nil {
-		resolvedAt = complaint.ResolvedAt
+	var resolvedAtStr string
+	if complaint.ResolvedAt != nil && !complaint.ResolvedAt.IsZero() {
+		resolvedAtStr = complaint.ResolvedAt.UTC().Format(time.RFC3339)
+	} else {
+		resolvedAtStr = ""
 	}
 	return dto.ComplaintResponse{
 		ID:              complaint.ID,
@@ -39,9 +41,9 @@ func ComplaintToResponseDTO(complaint *model.Complaint) dto.ComplaintResponse {
 		CodePublic:      complaint.CodePublic,
 		Description:     complaint.Description,
 		RequestedAction: complaint.RequestedAction,
-		CreatedAt:       complaint.CreatedAt,
-		UpdatedAt:       *complaint.UpdatedAt,
-		ResolvedAt:      resolvedAt,
+		CreatedAt:       complaint.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt:       complaint.UpdatedAt.UTC().Format(time.RFC3339),
+		ResolvedAt:      resolvedAtStr,
 		IsClosed:        complaint.IsClosed,
 	}
 }

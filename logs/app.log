@@ -69,3 +69,21 @@
 2025-11-10T02:09:56.283-0500	[34mINFO[0m	app/main.go:51	Migrations completed
 2025-11-10T02:13:02.017-0500	[34mINFO[0m	app/main.go:51	Migrations completed
 2025-11-10T02:30:02.451-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T13:49:27.828-0500	[31mFATAL[0m	app/main.go:44	Database connection failed	{"error": "failed to connect to `user=postgres database=complaint_service`: [::1]:5432 (localhost): failed SASL auth: FATAL: la autentificaci\ufffdn password fall\ufffd para el usuario \ufffdpostgres\ufffd (SQLSTATE 28P01)"}
+2025-11-10T13:50:06.766-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T14:08:57.437-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T14:11:07.038-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T14:12:36.588-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T14:13:27.533-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T14:19:01.213-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T14:26:33.403-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T14:58:01.849-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T15:03:44.048-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T15:08:20.295-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T15:17:10.108-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T15:29:41.711-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T15:31:05.563-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T15:51:28.767-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T16:31:08.419-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T16:35:25.065-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T16:39:14.404-0500	[34mINFO[0m	app/main.go:51	Migrations completed

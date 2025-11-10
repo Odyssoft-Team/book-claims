@@ -3,6 +3,7 @@ package mapper
 import (
 	"claimbook-api/internal/core/domain/model"
 	"claimbook-api/internal/infrastructure/http/dto"
+	"time"
 )
 
 func CreateRoleDTOToDomain(c dto.CreateRoleDTO) *model.Role {
@@ -21,8 +22,8 @@ func RoleToResponseDTO(role *model.Role) dto.RoleResponseDTO {
 		Description: role.Description,
 		TenantID:    role.TenantID,
 		IsSystem:    role.IsSystem,
-		CreatedAt:   role.CreatedAt,
-		UpdatedAt:   role.UpdatedAt,
+		CreatedAt:   role.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt:   role.UpdatedAt.UTC().Format(time.RFC3339),
 	}
 }
 

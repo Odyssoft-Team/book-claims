@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -31,6 +29,6 @@ type LocationResponseDTO struct {
 	Type       string    `json:"type"`
 	IsActive   bool      `json:"is_active"`
 	PublicCode string    `json:"public_code"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	CreatedAt  string    `json:"created_at"`
+	UpdatedAt  string    `json:"updated_at"`
 }

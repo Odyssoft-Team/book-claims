@@ -67,3 +67,33 @@ func (h *TenantHandler) GetTenantById(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 }
+
+func (h *TenantHandler) UpdateTenant(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		appErr := apperror.NewBadRequest("Invalid UUID format: " + err.Error())
+		c.JSON(appErr.Code, gin.H{"error": appErr.Message})
+		return
+	}
+
+	var updateDto dto.UpdateTenantDTO
+	if err := c.ShouldBindJSON(&updateDto); err != nil {
+		appErr := apperror.NewBadRequest("Invalid request body: " + err.Error())
+		c.JSON(appErr.Code, gin.H{"error": appErr.Message})
+		return
+	}
+
+	updatedComplaint, err := h.tenantUseCase.UpdateTenant(c.Request.Context(), id, &updateDto)
+	if err != nil {
+		var appErr *apperror.AppError
+		if errors.As(err, &appErr) {
+			c.JSON(appErr.Code, gin.H{"error": appErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, updatedComplaint)
+}

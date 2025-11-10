@@ -9,6 +9,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/base64"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -45,73 +46,6 @@ func (uc *TenantUseCase) CreateTenant(ctx context.Context, tenantDTO *dto.Create
 		return nil, apperror.NewInternalError("Failed to create tenant", err)
 	}
 
-	roles := []*model.Role{
-		{Name: "SUPERADMIN", Description: "Super administrator", TenantID: created.ID, IsSystem: true},
-		{Name: "ADMIN", Description: "Administrator", TenantID: created.ID, IsSystem: true},
-		{Name: "SELLER", Description: "Seller user", TenantID: created.ID, IsSystem: true},
-		{Name: "PUBLIC", Description: "Public user", TenantID: created.ID, IsSystem: false},
-	}
-
-	createdRoles, err := uc.roleRepo.CreateRoleBatchByTenant(ctx, roles)
-	if err != nil {
-		return nil, apperror.NewInternalError("Failed to create default roles", err)
-	}
-
-	var adminRoleID uuid.UUID
-	for _, r := range createdRoles {
-		if r.Name == "ADMIN" {
-			adminRoleID = r.ID
-			break
-		}
-	}
-	if adminRoleID == uuid.Nil {
-		return nil, apperror.NewInternalError("ADMIN role not found after creation", nil)
-	}
-
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("defaultPassword123!"), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, apperror.NewInternalError("failed to hash password", err)
-	}
-
-	adminUser := &model.User{
-		TenantID:  created.ID,
-		RoleID:    adminRoleID,
-		Email:     "admin@" + tenantDTO.Name + ".com",
-		Password:  string(hashedPassword),
-		FirstName: "Admin",
-		LastName:  "User",
-		FullName:  "Admin User",
-		UserName:  "admin_" + tenantDTO.Name,
-		Phone:     created.PhoneContact,
-		IsActive:  true,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	_, err = uc.userRepo.CreateUser(ctx, adminUser)
-	if err != nil {
-		return nil, apperror.NewInternalError("Failed to create admin user", err)
-	}
-
-	key, err := generateApiKey()
-	if err != nil {
-		return nil, apperror.NewInternalError("Failed to generate API key", err)
-	}
-
-	apiKey := &model.ApiKey{
-		TenantID:  created.ID,
-		ApiKey:    key,
-		Scope:     "global",
-		IsActive:  true,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}
-
-	_, err = uc.apiKeyRepo.CreateApiKey(ctx, apiKey)
-	if err != nil {
-		return nil, apperror.NewInternalError("Failed to create apiKey", err)
-	}
-
 	resp := mapper.TenantToResponseDTO(created)
 	return &resp, nil
 }
@@ -137,6 +71,8 @@ func (uc *TenantUseCase) UpdateTenant(ctx context.Context, id uuid.UUID, updateD
 		return nil, apperror.NewNotFoundError("Tenant not found")
 	}
 
+	oldIsActive := tenant.IsActive
+
 	mapper.UpdateTenantFromDTO(tenant, *updateDTO)
 
 	updated, err := uc.tenantRepo.UpdateTenant(ctx, tenant)
@@ -144,6 +80,74 @@ func (uc *TenantUseCase) UpdateTenant(ctx context.Context, id uuid.UUID, updateD
 		return nil, apperror.NewInternalError("Failed to update tenant", err)
 	}
 
+	if updateDTO.IsActive != nil && *updateDTO.IsActive != oldIsActive {
+		roles := []*model.Role{
+			{Name: "SUPERADMIN", Description: "Super administrator", TenantID: id, IsSystem: true},
+			{Name: "ADMIN", Description: "Administrator", TenantID: id, IsSystem: true},
+			{Name: "SELLER", Description: "Seller user", TenantID: id, IsSystem: true},
+			{Name: "PUBLIC", Description: "Public user", TenantID: id, IsSystem: false},
+		}
+
+		createdRoles, err := uc.roleRepo.CreateRoleBatchByTenant(ctx, roles)
+		if err != nil {
+			return nil, apperror.NewInternalError("Failed to create default roles", err)
+		}
+
+		var adminRoleID uuid.UUID
+		for _, r := range createdRoles {
+			if r.Name == "ADMIN" {
+				adminRoleID = r.ID
+				break
+			}
+		}
+		if adminRoleID == uuid.Nil {
+			return nil, apperror.NewInternalError("ADMIN role not found after creation", nil)
+		}
+
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte("defaultPassword123!"), bcrypt.DefaultCost)
+		if err != nil {
+			return nil, apperror.NewInternalError("failed to hash password", err)
+		}
+
+		adminUser := &model.User{
+			TenantID:  id,
+			RoleID:    adminRoleID,
+			Email:     "admin@" + strings.ToLower(tenant.Name) + ".com",
+			Password:  string(hashedPassword),
+			FirstName: "Admin",
+			LastName:  "User",
+			FullName:  "Administrator" + " " + tenant.Name,
+			UserName:  "admin_" + strings.ToLower(tenant.Name),
+			Phone:     tenant.PhoneContact,
+			IsActive:  true,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		_, err = uc.userRepo.CreateUser(ctx, adminUser)
+		if err != nil {
+			return nil, apperror.NewInternalError("Failed to create admin user", err)
+		}
+
+		key, err := generateApiKey()
+		if err != nil {
+			return nil, apperror.NewInternalError("Failed to generate API key", err)
+		}
+
+		apiKey := &model.ApiKey{
+			TenantID:  id,
+			ApiKey:    key,
+			Scope:     "GLOBAL",
+			IsActive:  true,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		_, err = uc.apiKeyRepo.CreateApiKey(ctx, apiKey)
+		if err != nil {
+			return nil, apperror.NewInternalError("Failed to create apiKey", err)
+		}
+	}
 	resp := mapper.TenantToResponseDTO(updated)
 	return &resp, nil
 }

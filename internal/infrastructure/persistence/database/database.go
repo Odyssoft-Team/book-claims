@@ -3,10 +3,12 @@
 import (
 	"fmt"
 	"log"
+	"time"
+
+	"claimbook-api/internal/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"claimbook-api/internal/config"
 )
 
 func Connect(cfg config.DBConfig) (*gorm.DB, error) {
@@ -15,7 +17,11 @@ func Connect(cfg config.DBConfig) (*gorm.DB, error) {
 		cfg.Host, cfg.User, cfg.Password, cfg.Name, cfg.Port,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		NowFunc: func() time.Time {
+			return time.Now().UTC()
+		},
+	})
 	if err != nil {
 		log.Printf("Error connecting to the database: %v", err)
 		return nil, err

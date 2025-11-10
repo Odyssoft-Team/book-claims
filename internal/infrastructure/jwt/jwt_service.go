@@ -132,7 +132,7 @@ func GenerateAccessToken(username string, userId string, name string, tenantId s
 		"role_id":     roleId,
 		"role_name":   roleName,
 		"user_id":     userId,
-		"tokenType":   "access",
+		"tokenType":   "access_token",
 		"exp":         time.Now().Add(accessExpiration).Unix(),
 	}
 
@@ -146,7 +146,7 @@ func GenerateRefreshToken(username string, tenantId string) (string, time.Time, 
 	claims := jwt.MapClaims{
 		"sub":       username,
 		"tenantId":  tenantId,
-		"tokenType": "refresh",
+		"tokenType": "refresh_token",
 		"exp":       expirationTime.Unix(),
 	}
 

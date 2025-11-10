@@ -57,3 +57,9 @@ func (r *apiKeyPGRepository) GetApiKeys(ctx context.Context) ([]*model.ApiKey, e
 	}
 	return result, nil
 }
+
+func (r *apiKeyPGRepository) IsValidApiKey(ctx context.Context, apiKey string) (bool, error) {
+	var count int64
+	err := r.db.WithContext(ctx).Model(&ApiKeyModel{}).Where("api_key = ? AND is_active = true", apiKey).Count(&count).Error
+	return count > 0, err
+}

@@ -3,6 +3,7 @@ package mapper
 import (
 	"claimbook-api/internal/core/domain/model"
 	"claimbook-api/internal/infrastructure/http/dto"
+	"time"
 )
 
 func CreateLocationDTOToDomain(c dto.CreateLocationDTO) *model.Location {
@@ -25,8 +26,8 @@ func LocationToResponseDTO(location *model.Location) dto.LocationResponseDTO {
 		Type:       location.Type,
 		IsActive:   location.IsActive,
 		PublicCode: location.PublicCode,
-		CreatedAt:  location.CreatedAt,
-		UpdatedAt:  location.UpdatedAt,
+		CreatedAt:  location.CreatedAt.UTC().Format(time.RFC3339),
+		UpdatedAt:  location.UpdatedAt.UTC().Format(time.RFC3339),
 	}
 }
 
