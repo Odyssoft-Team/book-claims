@@ -1,21 +1,39 @@
 package usecase
 
 import (
+	"claimbook-api/internal/core/domain/model"
 	"claimbook-api/internal/core/port"
 	"claimbook-api/internal/infrastructure/http/dto"
 	"claimbook-api/internal/infrastructure/http/mapper"
 	"claimbook-api/pkg/util/apperror"
 	"context"
+	"crypto/rand"
+	"encoding/base64"
+	"time"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type TenantUseCase struct {
 	tenantRepo port.TenantRepository
+	roleRepo   port.RoleRepository
+	userRepo   port.UserRepository
+	apiKeyRepo port.ApiKeyRepository
 }
 
-func NewTenantUseCase(repo port.TenantRepository) *TenantUseCase {
-	return &TenantUseCase{tenantRepo: repo}
+func NewTenantUseCase(
+	repo port.TenantRepository,
+	role port.RoleRepository,
+	user port.UserRepository,
+	apiKey port.ApiKeyRepository,
+) *TenantUseCase {
+	return &TenantUseCase{
+		tenantRepo: repo,
+		roleRepo:   role,
+		userRepo:   user,
+		apiKeyRepo: apiKey,
+	}
 }
 
 func (uc *TenantUseCase) CreateTenant(ctx context.Context, tenantDTO *dto.CreateTenantDTO) (*dto.TenantResponseDTO, error) {
@@ -26,6 +44,74 @@ func (uc *TenantUseCase) CreateTenant(ctx context.Context, tenantDTO *dto.Create
 	if err != nil {
 		return nil, apperror.NewInternalError("Failed to create tenant", err)
 	}
+
+	roles := []*model.Role{
+		{Name: "SUPERADMIN", Description: "Super administrator", TenantID: created.ID, IsSystem: true},
+		{Name: "ADMIN", Description: "Administrator", TenantID: created.ID, IsSystem: true},
+		{Name: "SELLER", Description: "Seller user", TenantID: created.ID, IsSystem: true},
+		{Name: "PUBLIC", Description: "Public user", TenantID: created.ID, IsSystem: false},
+	}
+
+	createdRoles, err := uc.roleRepo.CreateRoleBatchByTenant(ctx, roles)
+	if err != nil {
+		return nil, apperror.NewInternalError("Failed to create default roles", err)
+	}
+
+	var adminRoleID uuid.UUID
+	for _, r := range createdRoles {
+		if r.Name == "ADMIN" {
+			adminRoleID = r.ID
+			break
+		}
+	}
+	if adminRoleID == uuid.Nil {
+		return nil, apperror.NewInternalError("ADMIN role not found after creation", nil)
+	}
+
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("defaultPassword123!"), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, apperror.NewInternalError("failed to hash password", err)
+	}
+
+	adminUser := &model.User{
+		TenantID:  created.ID,
+		RoleID:    adminRoleID,
+		Email:     "admin@" + tenantDTO.Name + ".com",
+		Password:  string(hashedPassword),
+		FirstName: "Admin",
+		LastName:  "User",
+		FullName:  "Admin User",
+		UserName:  "admin_" + tenantDTO.Name,
+		Phone:     created.PhoneContact,
+		IsActive:  true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	_, err = uc.userRepo.CreateUser(ctx, adminUser)
+	if err != nil {
+		return nil, apperror.NewInternalError("Failed to create admin user", err)
+	}
+
+	key, err := generateApiKey()
+	if err != nil {
+		return nil, apperror.NewInternalError("Failed to generate API key", err)
+	}
+
+	apiKey := &model.ApiKey{
+		TenantID:  created.ID,
+		ApiKey:    key,
+		Scope:     "global",
+		IsActive:  true,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	_, err = uc.apiKeyRepo.CreateApiKey(ctx, apiKey)
+	if err != nil {
+		return nil, apperror.NewInternalError("Failed to create apiKey", err)
+	}
+
 	resp := mapper.TenantToResponseDTO(created)
 	return &resp, nil
 }
@@ -78,4 +164,13 @@ func (uc *TenantUseCase) GetTenants(ctx context.Context) ([]dto.TenantResponseDT
 	}
 
 	return responses, nil
+}
+
+func generateApiKey() (string, error) {
+	bytes := make([]byte, 32) // Tamaño estándar razonable
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	// Codificar en base64 URL-safe para que sea fácil de guardar y usar en URLs/headers
+	return base64.RawURLEncoding.EncodeToString(bytes), nil
 }

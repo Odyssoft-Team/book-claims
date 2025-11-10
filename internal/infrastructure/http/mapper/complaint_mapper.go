@@ -10,8 +10,8 @@ func CreateComplaintDTOToDomain(c dto.CreateComplaintDTO) *model.Complaint {
 	return &model.Complaint{
 		TenantID:        c.TenantID,
 		LocationID:      c.LocationID,
-		TypeID:          c.TypeID,
-		StatusID:        c.StatusID,
+		Type:            c.Type,
+		Status:          c.Status,
 		CategoryID:      c.CategoryID,
 		SourceID:        c.SourceID,
 		ApiKeyID:        c.ApiKeyID,
@@ -31,8 +31,8 @@ func ComplaintToResponseDTO(complaint *model.Complaint) dto.ComplaintResponse {
 		ID:              complaint.ID,
 		TenantID:        complaint.TenantID,
 		LocationID:      complaint.LocationID,
-		TypeID:          complaint.TypeID,
-		StatusID:        complaint.StatusID,
+		Type:            complaint.Type,
+		Status:          complaint.Status,
 		CategoryID:      complaint.CategoryID,
 		SourceID:        complaint.SourceID,
 		ApiKeyID:        complaint.ApiKeyID,
@@ -47,5 +47,5 @@ func ComplaintToResponseDTO(complaint *model.Complaint) dto.ComplaintResponse {
 }
 
 func UpdateComplaintFromDTO(existing *model.Complaint, dto dto.UpdateComplaintDTO) {
-	existing.StatusID = dto.StatusID
+	existing.Status = dto.Status
 }

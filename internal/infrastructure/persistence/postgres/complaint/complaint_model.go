@@ -9,17 +9,17 @@ import (
 )
 
 type ComplaintModel struct {
-	ID              uuid.UUID `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
-	TenantID        uuid.UUID `gorm:"type:uuid;not null;index"`
-	LocationID      uuid.UUID `gorm:"type:uuid;not null;index"`
-	TypeID          uuid.UUID `gorm:"type:uuid;not null;index"`
-	StatusID        uuid.UUID `gorm:"type:uuid;not null;index"`
-	CategoryID      uuid.UUID `gorm:"type:uuid;not null;index"`
-	SourceID        uuid.UUID `gorm:"type:uuid;not null;index"`
-	ApiKeyID        uuid.UUID `gorm:"type:uuid;not null;index"`
-	CodePublic      string    `gorm:"type:varchar(100);uniqueIndex;not null"`
-	Description     string    `gorm:"type:text;not null"`
-	RequestedAction string    `gorm:"type:text"`
+	ID              uuid.UUID             `gorm:"type:uuid;primaryKey;default:uuid_generate_v4()"`
+	TenantID        uuid.UUID             `gorm:"type:uuid;not null;index"`
+	LocationID      uuid.UUID             `gorm:"type:uuid;not null;index"`
+	Type            model.ComplaintType   `gorm:"type:varchar(50);not null;index"`
+	Status          model.ComplaintStatus `gorm:"type:varchar(50);not null;index"`
+	CategoryID      uuid.UUID             `gorm:"type:uuid;not null;index"`
+	SourceID        uuid.UUID             `gorm:"type:uuid;not null;index"`
+	ApiKeyID        uuid.UUID             `gorm:"type:uuid;not null;index"`
+	CodePublic      string                `gorm:"type:varchar(100);uniqueIndex;not null"`
+	Description     string                `gorm:"type:text;not null"`
+	RequestedAction string                `gorm:"type:text"`
 	IsClosed        bool
 	CreatedAt       time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt       *time.Time `json:"updated_at" db:"updated_at"`
@@ -36,8 +36,8 @@ func (g *ComplaintModel) ToDomain() *model.Complaint {
 		ID:              g.ID,
 		TenantID:        g.TenantID,
 		LocationID:      g.LocationID,
-		TypeID:          g.TypeID,
-		StatusID:        g.StatusID,
+		Type:            g.Type,
+		Status:          g.Status,
 		CategoryID:      g.CategoryID,
 		SourceID:        g.SourceID,
 		ApiKeyID:        g.ApiKeyID,
@@ -56,8 +56,8 @@ func ComplaintModelFromDomain(g *model.Complaint) *ComplaintModel {
 		ID:              g.ID,
 		TenantID:        g.TenantID,
 		LocationID:      g.LocationID,
-		TypeID:          g.TypeID,
-		StatusID:        g.StatusID,
+		Type:            g.Type,
+		Status:          g.Status,
 		CategoryID:      g.CategoryID,
 		SourceID:        g.SourceID,
 		ApiKeyID:        g.ApiKeyID,

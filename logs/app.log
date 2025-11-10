@@ -53,3 +53,19 @@
 2025-11-06T15:40:00.270-0500	[34mINFO[0m	app/main.go:50	Migrations completed
 2025-11-06T15:41:57.947-0500	[34mINFO[0m	app/main.go:50	Migrations completed
 2025-11-06T18:49:48.038-0500	[34mINFO[0m	app/main.go:50	Migrations completed
+2025-11-09T23:04:44.294-0500	[34mINFO[0m	app/main.go:50	Migrations completed
+2025-11-09T23:36:50.080-0500	[31mFATAL[0m	app/main.go:48	Migration failed	{"error": "ERROR: la columna «type» de la relación «complaint» contiene valores null (SQLSTATE 23502)"}
+2025-11-09T23:37:24.266-0500	[34mINFO[0m	app/main.go:50	Migrations completed
+2025-11-09T23:38:40.258-0500	[34mINFO[0m	app/main.go:50	Migrations completed
+2025-11-10T00:53:01.744-0500	[31mFATAL[0m	app/main.go:49	Migration failed	{"error": "ERROR: la columna «status» de la relación «complaint» contiene valores null (SQLSTATE 23502)"}
+2025-11-10T00:53:29.215-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T00:55:25.631-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T00:56:00.940-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T00:57:27.461-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T00:58:09.725-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T01:19:19.480-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T01:46:05.303-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T01:51:51.195-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T02:09:56.283-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T02:13:02.017-0500	[34mINFO[0m	app/main.go:51	Migrations completed
+2025-11-10T02:30:02.451-0500	[34mINFO[0m	app/main.go:51	Migrations completed

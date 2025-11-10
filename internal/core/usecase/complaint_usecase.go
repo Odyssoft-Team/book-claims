@@ -12,16 +12,26 @@ import (
 )
 
 type ComplaintUseCase struct {
-	complaintRepo port.ComplaintRepository
+	complaintRepo         port.ComplaintRepository
+	complaintSequenceRepo port.ComplaintSequenceRepository
 }
 
-func NewComplaintUseCase(repo port.ComplaintRepository) *ComplaintUseCase {
-	return &ComplaintUseCase{complaintRepo: repo}
+func NewComplaintUseCase(repo port.ComplaintRepository, sequence port.ComplaintSequenceRepository) *ComplaintUseCase {
+	return &ComplaintUseCase{
+		complaintRepo:         repo,
+		complaintSequenceRepo: sequence,
+	}
 }
 
-func (uc *ComplaintUseCase) CreateComplaint(ctx context.Context, cashboxDTO *dto.CreateComplaintDTO) (*dto.ComplaintResponse, error) {
+func (uc *ComplaintUseCase) CreateComplaint(ctx context.Context, complaintDTO *dto.CreateComplaintDTO) (*dto.ComplaintResponse, error) {
 
-	domainModel := mapper.CreateComplaintDTOToDomain(*cashboxDTO)
+	codePublic, err := uc.complaintSequenceRepo.GenerateCodePublic(ctx, complaintDTO.TenantID, "EMPRESA")
+	if err != nil {
+		return nil, apperror.NewInternalError("cannot generate complaint code", err)
+	}
+	complaintDTO.CodePublic = codePublic
+
+	domainModel := mapper.CreateComplaintDTOToDomain(*complaintDTO)
 
 	created, err := uc.complaintRepo.CreateComplaint(ctx, domainModel)
 	if err != nil {

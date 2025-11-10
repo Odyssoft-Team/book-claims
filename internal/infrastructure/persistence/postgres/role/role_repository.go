@@ -57,3 +57,39 @@ func (r *rolePGRepository) GetRoles(ctx context.Context) ([]*model.Role, error) 
 	}
 	return result, nil
 }
+
+func (r *rolePGRepository) CreateRoleBatchByTenant(ctx context.Context, roles []*model.Role) ([]*model.Role, error) {
+
+	var dbModels []*RoleModel
+	for _, role := range roles {
+		dbModels = append(dbModels, RoleModelFromDomain(role))
+	}
+
+	tx := r.db.Begin()
+	if tx.Error != nil {
+		return nil, tx.Error
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r) // Propagar el panic
+		}
+	}()
+
+	if err := tx.WithContext(ctx).CreateInBatches(&dbModels, 100).Error; err != nil {
+		tx.Rollback() // Revertir todas las inserciones si falla una
+		return nil, err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	var createdDomains []*model.Role
+	for _, dbModel := range dbModels {
+		createdDomains = append(createdDomains, dbModel.ToDomain())
+	}
+
+	return createdDomains, nil
+}

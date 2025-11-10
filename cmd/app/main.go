@@ -10,6 +10,7 @@ import (
 	"claimbook-api/internal/infrastructure/persistence/database"
 	apikey "claimbook-api/internal/infrastructure/persistence/postgres/api_key"
 	"claimbook-api/internal/infrastructure/persistence/postgres/complaint"
+	complaintsequence "claimbook-api/internal/infrastructure/persistence/postgres/complaint_sequence"
 	"claimbook-api/internal/infrastructure/persistence/postgres/location"
 	"claimbook-api/internal/infrastructure/persistence/postgres/role"
 	"claimbook-api/internal/infrastructure/persistence/postgres/session"
@@ -50,8 +51,10 @@ func main() {
 		zapLogger.Info("Migrations completed")
 	}
 
+	complaintSequenceRepo := complaintsequence.NewComplaintSequencePGRepository(db)
+
 	complaintRepo := complaint.NewComplaintPGRepository(db)
-	complaintUseCase := usecase.NewComplaintUseCase(complaintRepo)
+	complaintUseCase := usecase.NewComplaintUseCase(complaintRepo, complaintSequenceRepo)
 	complaintHandler := handler.NewComplaintHandler(complaintUseCase)
 
 	userRepo := user.NewUserPGRepository(db)
@@ -70,13 +73,13 @@ func main() {
 	authUseCase := usecase.NewAuthUseCase(sessionRepo, userRepo)
 	sessionHandler := handler.NewAuthHandler(authUseCase)
 
-	tenantRepo := tenant.NewTenantPGRepository(db)
-	tenantUseCase := usecase.NewTenantUseCase(tenantRepo)
-	tenantHandler := handler.NewTenantHandler(tenantUseCase)
-
 	apiKeyRepo := apikey.NewApiKeyPGRepository(db)
 	apiKeyUseCase := usecase.NewApiKeyUseCase(apiKeyRepo)
 	apiKeyHandler := handler.NewApiKeyHandler(apiKeyUseCase)
+
+	tenantRepo := tenant.NewTenantPGRepository(db)
+	tenantUseCase := usecase.NewTenantUseCase(tenantRepo, roleRepo, userRepo, apiKeyRepo)
+	tenantHandler := handler.NewTenantHandler(tenantUseCase)
 
 	r := http.SetupRouter(complaintHandler, userHandler, roleHandler, locationHandler, sessionHandler, tenantHandler, apiKeyHandler, zapLogger, httpLogger, AuthLogger)
 

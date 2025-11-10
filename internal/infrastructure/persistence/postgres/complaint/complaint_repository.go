@@ -5,6 +5,8 @@ import (
 	"claimbook-api/internal/core/port"
 	"context"
 	"errors"
+	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -95,4 +97,15 @@ func (r *complaintPGRepository) GetSummary(ctx context.Context) (model.SummaryRe
 	summary.SlaCompliance = "N/A" // placeholder
 
 	return summary, nil
+}
+
+func (r *complaintPGRepository) GenerateCodePublic(ctx context.Context, tenantID uuid.UUID, prefix string) (string, error) {
+	var seq int64
+	err := r.db.WithContext(ctx).Raw("SELECT next_complaint_code(?)", tenantID).Scan(&seq).Error
+	if err != nil {
+		return "", err
+	}
+	year := time.Now().Year()
+	code := fmt.Sprintf("%s-%d-%06d", prefix, year, seq)
+	return code, nil
 }

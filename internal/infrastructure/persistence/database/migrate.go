@@ -3,6 +3,7 @@
 import (
 	apikey "claimbook-api/internal/infrastructure/persistence/postgres/api_key"
 	"claimbook-api/internal/infrastructure/persistence/postgres/complaint"
+	complaintsequence "claimbook-api/internal/infrastructure/persistence/postgres/complaint_sequence"
 	"claimbook-api/internal/infrastructure/persistence/postgres/location"
 	"claimbook-api/internal/infrastructure/persistence/postgres/role"
 	"claimbook-api/internal/infrastructure/persistence/postgres/session"
@@ -21,6 +22,7 @@ func Migrate(db *gorm.DB) error {
 		&session.SessionModel{},
 		&tenant.TenantModel{},
 		&apikey.ApiKeyModel{},
+		&complaintsequence.ComplaintSequenceModel{},
 	)
 	if err != nil {
 		return err
