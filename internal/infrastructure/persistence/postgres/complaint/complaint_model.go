@@ -15,7 +15,7 @@ type ComplaintModel struct {
 	Type            model.ComplaintType   `gorm:"type:varchar(50);not null;index"`
 	Status          model.ComplaintStatus `gorm:"type:varchar(50);not null;index"`
 	CategoryID      uuid.UUID             `gorm:"type:uuid;not null;index"`
-	SourceID        uuid.UUID             `gorm:"type:uuid;not null;index"`
+	Source          model.ComplaintSource `gorm:"type:varchar(50);not null;index"`
 	ApiKeyID        uuid.UUID             `gorm:"type:uuid;not null;index"`
 	CodePublic      string                `gorm:"type:varchar(100);uniqueIndex;not null"`
 	Description     string                `gorm:"type:text;not null"`
@@ -39,7 +39,7 @@ func (g *ComplaintModel) ToDomain() *model.Complaint {
 		Type:            g.Type,
 		Status:          g.Status,
 		CategoryID:      g.CategoryID,
-		SourceID:        g.SourceID,
+		Source:          g.Source,
 		ApiKeyID:        g.ApiKeyID,
 		CodePublic:      g.CodePublic,
 		Description:     g.Description,
@@ -59,7 +59,7 @@ func ComplaintModelFromDomain(g *model.Complaint) *ComplaintModel {
 		Type:            g.Type,
 		Status:          g.Status,
 		CategoryID:      g.CategoryID,
-		SourceID:        g.SourceID,
+		Source:          g.Source,
 		ApiKeyID:        g.ApiKeyID,
 		CodePublic:      g.CodePublic,
 		Description:     g.Description,

@@ -5,6 +5,7 @@ import (
 	"claimbook-api/internal/infrastructure/http/dto"
 	"claimbook-api/pkg/util/apperror"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,6 +27,14 @@ func (h *ComplaintHandler) CreateComplaint(c *gin.Context) {
 		appErr := apperror.NewBadRequest("Invalid request body: " + err.Error())
 		c.JSON(appErr.Code, gin.H{"error": appErr.Message})
 		return
+	}
+
+	if apiKeyID, exists := c.Get("api_key_id"); exists {
+		if id, ok := apiKeyID.(uuid.UUID); ok {
+			createDto.ApiKeyID = id
+			fmt.Println("API Key ID:", id.String())
+
+		}
 	}
 
 	ctx := c.Request.Context()

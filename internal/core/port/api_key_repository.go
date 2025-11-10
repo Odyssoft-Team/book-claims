@@ -12,5 +12,5 @@ type ApiKeyRepository interface {
 	GetApiKeyById(ctx context.Context, id uuid.UUID) (*model.ApiKey, error)
 	UpdateApiKey(ctx context.Context, user *model.ApiKey) (*model.ApiKey, error)
 	GetApiKeys(ctx context.Context) ([]*model.ApiKey, error)
-	IsValidApiKey(ctx context.Context, apiKey string) (bool, error)
+	IsValidApiKey(ctx context.Context, apiKey string) (*model.ApiKey, error)
 }

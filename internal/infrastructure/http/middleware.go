@@ -225,17 +225,20 @@ func ApiKeyMiddleware(apiKeyRepo port.ApiKeyRepository, logger *zap.Logger) gin.
 			return
 		}
 
-		valid, err := apiKeyRepo.IsValidApiKey(c.Request.Context(), apiKey)
+		apiKeyEntity, err := apiKeyRepo.IsValidApiKey(c.Request.Context(), apiKey)
 		if err != nil {
 			logger.Error("Failed to validate API key", zap.Error(err))
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 			return
 		}
-		if !valid {
+		if apiKeyEntity == nil {
 			logger.Warn("Invalid API key", zap.String("ip", c.ClientIP()))
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "Invalid API key"})
 			return
 		}
+
+		// Guardar el ID del API key en el contexto para usarlo en el handler/create complaint
+		c.Set("api_key_id", apiKeyEntity.ID)
 
 		c.Next()
 	}

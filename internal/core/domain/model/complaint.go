@@ -23,6 +23,15 @@ const (
 	CERRADO    ComplaintStatus = "CERRADO"
 )
 
+type ComplaintSource string
+
+const (
+	WEB     ComplaintSource = "WEB PUBLICA"
+	OFICINA ComplaintSource = "OFICINA FISICA"
+	API     ComplaintSource = "API"
+	CALL    ComplaintSource = "CALL CENTER"
+)
+
 type Complaint struct {
 	ID              uuid.UUID
 	TenantID        uuid.UUID
@@ -30,7 +39,7 @@ type Complaint struct {
 	Type            ComplaintType
 	Status          ComplaintStatus
 	CategoryID      uuid.UUID
-	SourceID        uuid.UUID
+	Source          ComplaintSource
 	ApiKeyID        uuid.UUID
 	CodePublic      string
 	Description     string

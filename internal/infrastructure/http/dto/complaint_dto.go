@@ -12,8 +12,8 @@ type CreateComplaintDTO struct {
 	Type            model.ComplaintType   `json:"type" binding:"required,oneof=QUEJA RECLAMO"`
 	Status          model.ComplaintStatus `json:"status" binding:"required,oneof=RECIBIDO EVALUACION PROCESO ATENDIDO CERRADO"`
 	CategoryID      uuid.UUID             `json:"category_id" binding:"required,uuid"`
-	SourceID        uuid.UUID             `json:"source_id" binding:"required,uuid"`
-	ApiKeyID        uuid.UUID             `json:"api_key_id" binding:"required,uuid"`
+	Source          model.ComplaintSource `json:"source" binding:"required,oneof=WEB OFICINA API CALL"`
+	ApiKeyID        uuid.UUID             `json:"api_key_id"`
 	CodePublic      string                `json:"code_public"`
 	Description     string                `json:"description" binding:"required"`
 	RequestedAction string                `json:"requested_action"`
@@ -27,7 +27,7 @@ type ComplaintResponse struct {
 	Type       model.ComplaintType   `json:"type"`
 	Status     model.ComplaintStatus `json:"status"`
 	CategoryID uuid.UUID             `json:"category_id"`
-	SourceID   uuid.UUID             `json:"source_id"`
+	Source     model.ComplaintSource `json:"source"`
 	ApiKeyID   uuid.UUID             `json:"api_key_id"`
 
 	CodePublic      string `json:"code_public"`
@@ -40,5 +40,5 @@ type ComplaintResponse struct {
 }
 
 type UpdateComplaintDTO struct {
-	Status model.ComplaintStatus `json:"status" binding:"required,uuid"`
+	Status model.ComplaintStatus `json:"status" binding:"required,oneof='RECIBIDO' 'EN EVALUACION' 'PROCESO' 'ATENDIDO' 'CERRADO'"`
 }
