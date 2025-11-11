@@ -64,6 +64,51 @@ func (uc *AuthUseCase) Login(ctx context.Context, request dto.AuthRequest, ip, u
 	}, nil
 }
 
+func (uc *AuthUseCase) RefreshToken(ctx context.Context, refreshToken string) (*dto.AuthResponse, error) {
+	claims, err := jwt.ValidateRefreshToken(refreshToken)
+	if err != nil {
+		return nil, apperror.NewBadRequest("Invalid refresh token")
+	}
+
+	email, ok := claims["sub"].(string)
+	if !ok || email == "" {
+		return nil, apperror.NewBadRequest("Refresh token without valid 'subject'")
+	}
+
+	tenant, ok := claims["tenantId"].(string)
+	if !ok || tenant == "" {
+		return nil, apperror.NewBadRequest("Refresh token without valid 'tenant'")
+	}
+
+	session, err := uc.sessionRepo.FindByRefreshToken(ctx, refreshToken)
+	if err != nil {
+		return nil, apperror.NewNotFoundError("Session not found or expired")
+	}
+
+	if session.Revoked {
+		return nil, apperror.NewBadRequest("Session has been revoked")
+	}
+
+	userInfo, err := uc.userRepo.GetUserById(ctx, session.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	var fullName = userInfo.FullName
+
+	userId := session.UserID.String()
+	locationId := userInfo.LocationID.String()
+	newAccessToken, err := jwt.GenerateAccessToken(email, userId, fullName, tenant, userInfo.RoleID.String(), locationId, userInfo.RoleName)
+	if err != nil {
+		return nil, apperror.NewInternalError("Error generating new access token", err)
+	}
+
+	return &dto.AuthResponse{
+		AccessToken:  newAccessToken,
+		RefreshToken: refreshToken,
+	}, nil
+}
+
 func (uc *AuthUseCase) Logout(ctx context.Context, refreshToken string) error {
 	_, err := jwt.ValidateRefreshToken(refreshToken)
 	if err != nil {

@@ -85,6 +85,7 @@ func SetupRouter(
 		auth := publicApi.Group("/auth")
 		{
 			auth.POST("/login", sessionHandler.LoginHandler)
+			auth.POST("/refresh", sessionHandler.RefreshTokenHandler)
 			auth.POST("/logout", sessionHandler.LogoutHandler)
 		}
 

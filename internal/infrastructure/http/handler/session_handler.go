@@ -59,6 +59,34 @@ func (h *AuthHandler) LoginHandler(c *gin.Context) {
 	})
 }
 
+func (h *AuthHandler) RefreshTokenHandler(c *gin.Context) {
+	cookie, err := c.Request.Cookie("refresh_token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Refresh token not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal error reading cookie"})
+		return
+	}
+
+	response, err := h.authUseCase.RefreshToken(c.Request.Context(), cookie.Value)
+	if err != nil {
+		if appErr, ok := err.(*apperror.AppError); ok {
+			c.JSON(appErr.Code, gin.H{"error": appErr.Error()})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "An unexpected error occurred"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success":      true,
+		"message":      "New access token generated",
+		"access_token": response.AccessToken,
+	})
+}
+
 func (h *AuthHandler) LogoutHandler(c *gin.Context) {
 	// 1. Intentar leer el refresh token
 	cookie, err := c.Request.Cookie("refresh_token")

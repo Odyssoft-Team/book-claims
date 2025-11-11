@@ -1,0 +1,3 @@
+2025-11-10T19:09:59.836-0500	[33mWARN[0m	http/middleware.go:148	Token validation failed	{"ip": "::1", "path": "/api/v1/user/:id", "error": "Invalid token: token has invalid claims: token is expired"}
+2025-11-10T19:10:13.421-0500	[33mWARN[0m	http/middleware.go:164	Token missing role_name claim	{"ip": "::1", "path": "/api/v1/user/:id"}
+2025-11-10T19:11:27.457-0500	[34mINFO[0m	http/middleware.go:182	Authentication successful	{"user_id": "f5683bea-7ca0-423a-9baa-6071d4f2ae8d", "user_name": "Administrator TenantPrueba", "role_name": "ADMIN", "ip": "::1", "path": "/api/v1/user/:id"}
