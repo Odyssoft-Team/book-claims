@@ -20,6 +20,17 @@ func NewComplaintHandler(uc *usecase.ComplaintUseCase) *ComplaintHandler {
 	return &ComplaintHandler{complaintUseCase: uc}
 }
 
+// CreateComplaint godoc
+// @Summary Create a complaint
+// @Description Create a complaint (public endpoint using API Key)
+// @Tags complaint
+// @Accept json
+// @Produce json
+// @Param complaint body dto.CreateComplaintDTO true "Complaint data"
+// @Success 201 {object} model.Complaint
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /complaint [post]
 func (h *ComplaintHandler) CreateComplaint(c *gin.Context) {
 	var createDto dto.CreateComplaintDTO
 
@@ -54,6 +65,15 @@ func (h *ComplaintHandler) CreateComplaint(c *gin.Context) {
 	c.JSON(http.StatusCreated, newComplaint)
 }
 
+// GetComplaintByCodePublic godoc
+// @Summary Get complaint by public code
+// @Description Retrieve a complaint using public code (API Key required)
+// @Tags complaint
+// @Produce json
+// @Param code path string true "Public code"
+// @Success 200 {object} model.Complaint
+// @Failure 404 {object} map[string]string
+// @Router /complaint/code/{code} [get]
 func (h *ComplaintHandler) GetComplaintByCodePublic(c *gin.Context) {
 	code := c.Param("code")
 
@@ -71,6 +91,16 @@ func (h *ComplaintHandler) GetComplaintByCodePublic(c *gin.Context) {
 	c.JSON(http.StatusOK, complaint)
 }
 
+// GetComplaintById godoc
+// @Summary Get complaint by ID
+// @Description Retrieve complaint by UUID
+// @Tags complaint
+// @Produce json
+// @Param id path string true "Complaint ID"
+// @Success 200 {object} model.Complaint
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /complaint/{id} [get]
 func (h *ComplaintHandler) GetComplaintById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -94,6 +124,18 @@ func (h *ComplaintHandler) GetComplaintById(c *gin.Context) {
 	c.JSON(http.StatusOK, complaint)
 }
 
+// UpdateComplaint godoc
+// @Summary Update complaint
+// @Description Update complaint status or details
+// @Tags complaint
+// @Accept json
+// @Produce json
+// @Param id path string true "Complaint ID"
+// @Param complaint body dto.UpdateComplaintDTO true "Update data"
+// @Success 200 {object} model.Complaint
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /complaint/{id}/action [post]
 func (h *ComplaintHandler) UpdateComplaint(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -124,6 +166,14 @@ func (h *ComplaintHandler) UpdateComplaint(c *gin.Context) {
 	c.JSON(http.StatusOK, updatedComplaint)
 }
 
+// GetComplaints godoc
+// @Summary List complaints
+// @Description List all complaints (requires auth)
+// @Tags complaint
+// @Produce json
+// @Success 200 {array} model.Complaint
+// @Failure 500 {object} map[string]string
+// @Router /complaint [get]
 func (h *ComplaintHandler) GetComplaints(c *gin.Context) {
 	complaints, err := h.complaintUseCase.GetComplaints(c.Request.Context())
 	if err != nil {
@@ -139,6 +189,14 @@ func (h *ComplaintHandler) GetComplaints(c *gin.Context) {
 	c.JSON(http.StatusOK, complaints)
 }
 
+// SummaryReportHandler godoc
+// @Summary Get summary report
+// @Description Returns summary report data
+// @Tags report
+// @Produce json
+// @Success 200 {object} model.SummaryReport
+// @Failure 500 {object} map[string]string
+// @Router /report/summary [get]
 func (h *ComplaintHandler) SummaryReportHandler(c *gin.Context) {
 	ctx := c.Request.Context()
 

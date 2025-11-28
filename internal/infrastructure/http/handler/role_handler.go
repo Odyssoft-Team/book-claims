@@ -19,6 +19,17 @@ func NewRoleHandler(uc *usecase.RoleUseCase) *RoleHandler {
 	return &RoleHandler{roleUseCase: uc}
 }
 
+// CreateRole godoc
+// @Summary Create a role for a tenant
+// @Description Create role
+// @Tags role
+// @Accept json
+// @Produce json
+// @Param role body dto.CreateRoleDTO true "Role data"
+// @Success 201 {object} model.Role
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /role [post]
 func (h *RoleHandler) CreateRole(c *gin.Context) {
 	var createDto dto.CreateRoleDTO
 
@@ -45,6 +56,16 @@ func (h *RoleHandler) CreateRole(c *gin.Context) {
 	c.JSON(http.StatusCreated, newRole)
 }
 
+// GetRoleById godoc
+// @Summary Get role by ID
+// @Description Retrieve role by UUID
+// @Tags role
+// @Produce json
+// @Param id path string true "Role ID"
+// @Success 200 {object} model.Role
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /role/{id} [get]
 func (h *RoleHandler) GetRoleById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

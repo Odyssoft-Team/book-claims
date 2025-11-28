@@ -4,6 +4,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateRoleDTO representa los datos para crear un rol
+// swagger:model CreateRoleDTO
 type CreateRoleDTO struct {
 	TenantID    uuid.UUID `json:"tenant_id" validate:"required"`
 	Name        string    `json:"name" validate:"required"`
@@ -11,14 +13,16 @@ type CreateRoleDTO struct {
 	IsSystem    bool      `json:"is_system"`
 }
 
-// DTO de entrada para actualizar un usuario
+// UpdateRoleDTO representa campos opcionales para actualizar rol
+// swagger:model UpdateRoleDTO
 type UpdateRoleDTO struct {
 	Name        *string `json:"name"`
 	Description *string `json:"description"`
 	IsSystem    *bool   `json:"is_system"`
 }
 
-// DTO de salida para obtener un usuario
+// RoleResponseDTO representa la respuesta de un rol
+// swagger:model RoleResponseDTO
 type RoleResponseDTO struct {
 	ID          uuid.UUID `json:"user_id"`
 	Name        string    `json:"name"`

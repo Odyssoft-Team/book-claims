@@ -19,6 +19,18 @@ func NewLocationHandler(uc *usecase.LocationUseCase) *LocationHandler {
 	return &LocationHandler{locationUseCase: uc}
 }
 
+// CreateLocation godoc
+// @Summary Create a location for a tenant
+// @Description Create location under a tenant
+// @Tags location
+// @Accept json
+// @Produce json
+// @Param id path string true "Tenant ID"
+// @Param location body dto.CreateLocationDTO true "Location data"
+// @Success 201 {object} model.Location
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tenant/{id}/location [post]
 func (h *LocationHandler) CreateLocation(c *gin.Context) {
 	var createDto dto.CreateLocationDTO
 
@@ -53,6 +65,16 @@ func (h *LocationHandler) CreateLocation(c *gin.Context) {
 	c.JSON(http.StatusCreated, newLocation)
 }
 
+// GetLocationById godoc
+// @Summary Get location by ID
+// @Description Retrieve location by UUID
+// @Tags location
+// @Produce json
+// @Param id path string true "Location ID"
+// @Success 200 {object} model.Location
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /location/{id} [get]
 func (h *LocationHandler) GetLocationById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

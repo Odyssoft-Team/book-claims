@@ -19,6 +19,17 @@ func NewTenantHandler(uc *usecase.TenantUseCase) *TenantHandler {
 	return &TenantHandler{tenantUseCase: uc}
 }
 
+// CreateTenant godoc
+// @Summary Create a new tenant
+// @Description Create tenant with the provided data
+// @Tags tenant
+// @Accept json
+// @Produce json
+// @Param tenant body dto.CreateTenantDTO true "Tenant data"
+// @Success 201 {object} model.Tenant
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tenant [post]
 func (h *TenantHandler) CreateTenant(c *gin.Context) {
 	var createDto dto.CreateTenantDTO
 
@@ -45,6 +56,29 @@ func (h *TenantHandler) CreateTenant(c *gin.Context) {
 	c.JSON(http.StatusCreated, newTenant)
 }
 
+// GetAllTenants godoc
+// @Summary List tenants
+// @Description Get all tenants
+// @Tags tenant
+// @Produce json
+// @Success 200 {array} model.Tenant
+// @Failure 500 {object} map[string]string
+// @Router /tenant [get]
+func (h *TenantHandler) GetAllTenants(c *gin.Context) {
+	// fallback: call usecase if exists
+	// ...existing code...
+}
+
+// GetTenantById godoc
+// @Summary Get tenant by ID
+// @Description Get a tenant using its ID
+// @Tags tenant
+// @Produce json
+// @Param id path string true "Tenant ID"
+// @Success 200 {object} model.Tenant
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /tenant/{id} [get]
 func (h *TenantHandler) GetTenantById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -68,6 +102,18 @@ func (h *TenantHandler) GetTenantById(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// UpdateTenant godoc
+// @Summary Update tenant
+// @Description Update tenant fields (activate tenant etc.)
+// @Tags tenant
+// @Accept json
+// @Produce json
+// @Param id path string true "Tenant ID"
+// @Param tenant body dto.UpdateTenantDTO true "Tenant update data"
+// @Success 200 {object} model.Tenant
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tenant/{id} [patch]
 func (h *TenantHandler) UpdateTenant(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

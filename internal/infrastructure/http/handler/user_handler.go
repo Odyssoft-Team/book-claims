@@ -19,6 +19,17 @@ func NewUserHandler(uc *usecase.UserUseCase) *UserHandler {
 	return &UserHandler{userUseCase: uc}
 }
 
+// CreateUser godoc
+// @Summary Create a user
+// @Description Create a new user for a tenant
+// @Tags user
+// @Accept json
+// @Produce json
+// @Param user body dto.CreateUserDTO true "User data"
+// @Success 201 {object} model.User
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /user [post]
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var createDto dto.CreateUserDTO
 
@@ -45,6 +56,16 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, newUser)
 }
 
+// GetUserById godoc
+// @Summary Get user by ID
+// @Description Retrieve user by UUID
+// @Tags user
+// @Produce json
+// @Param id path string true "User ID"
+// @Success 200 {object} model.User
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /user/{id} [get]
 func (h *UserHandler) GetUserById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)
@@ -68,6 +89,17 @@ func (h *UserHandler) GetUserById(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// Login godoc
+// @Summary User login
+// @Description Authenticate user and return tokens
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param credentials body dto.AuthRequest true "Credentials"
+// @Success 200 {object} dto.AuthResponse
+// @Failure 400 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /user/login [post]
 func (h *UserHandler) Login(c *gin.Context) {
 	var login dto.AuthRequest
 	if err := c.ShouldBindJSON(&login); err != nil {

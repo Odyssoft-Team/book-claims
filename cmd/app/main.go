@@ -18,10 +18,26 @@ import (
 	"claimbook-api/internal/infrastructure/persistence/postgres/user"
 
 	"log"
+	"net/http"
 	"os"
 
 	"go.uber.org/zap"
+
+	// Swagger
+	"github.com/gin-gonic/gin"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
+
+// @title Book Claims API
+// @version 1.0
+// @description API para gestión de reclamos multi-tenant
+// @termsOfService http://swagger.io/terms/
+// @contact.name API Support
+// @contact.email support@example.com
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+// @host localhost:8080
+// @BasePath /api/v1
 
 func main() {
 	cfg := config.LoadConfig()
@@ -82,6 +98,11 @@ func main() {
 	tenantHandler := handler.NewTenantHandler(tenantUseCase)
 
 	r := http.SetupRouter(complaintHandler, userHandler, roleHandler, locationHandler, sessionHandler, tenantHandler, apiKeyHandler, apiKeyRepo, zapLogger, httpLogger, AuthLogger)
+
+	// Montar Swagger UI en /swagger/*any usando http-swagger
+	r.GET("/swagger/*any", func(c *gin.Context) {
+		httpSwagger.Handler(&httpSwagger.Config{URL: "/swagger/doc.json"})(c.Writer, c.Request)
+	})
 
 	port := os.Getenv("PORT")
 	if port == "" {

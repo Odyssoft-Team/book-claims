@@ -19,6 +19,18 @@ func NewApiKeyHandler(uc *usecase.ApiKeyUseCase) *ApiKeyHandler {
 	return &ApiKeyHandler{apiKeyUseCase: uc}
 }
 
+// CreateApiKey godoc
+// @Summary Create API Key for tenant
+// @Description Create an API key for a specific tenant
+// @Tags api_key
+// @Accept json
+// @Produce json
+// @Param id path string true "Tenant ID"
+// @Param apiKey body dto.CreateApiKeyDTO true "API Key data"
+// @Success 201 {object} model.ApiKey
+// @Failure 400 {object} map[string]string
+// @Failure 500 {object} map[string]string
+// @Router /tenant/{id}/api-keys [post]
 func (h *ApiKeyHandler) CreateApiKey(c *gin.Context) {
 	var createDto dto.CreateApiKeyDTO
 
@@ -55,6 +67,16 @@ func (h *ApiKeyHandler) CreateApiKey(c *gin.Context) {
 	c.JSON(http.StatusCreated, newUser)
 }
 
+// GetApiKeyById godoc
+// @Summary Get API key by ID
+// @Description Retrieve API key by UUID
+// @Tags api_key
+// @Produce json
+// @Param id path string true "ApiKey ID"
+// @Success 200 {object} model.ApiKey
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /api_key/{id} [get]
 func (h *ApiKeyHandler) GetApiKeyById(c *gin.Context) {
 	idStr := c.Param("id")
 	id, err := uuid.Parse(idStr)

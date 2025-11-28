@@ -6,6 +6,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateSessionDTO representa la sesión a crear
+// swagger:model CreateSessionDTO
 type CreateSessionDTO struct {
 	UserID       uuid.UUID
 	TenantID     uuid.UUID
@@ -15,6 +17,8 @@ type CreateSessionDTO struct {
 	ExpiresAt    time.Time
 }
 
+// ResponseSessionDTO representa la respuesta de una sesión
+// swagger:model ResponseSessionDTO
 type ResponseSessionDTO struct {
 	ID           uuid.UUID `json:"id"`
 	UserID       uuid.UUID `json:"user_id"`
@@ -28,6 +32,8 @@ type ResponseSessionDTO struct {
 	Revoked      bool      `json:"revoked"`
 }
 
+// UpdateSessionDTO representa campos para actualizar sesión
+// swagger:model UpdateSessionDTO
 type UpdateSessionDTO struct {
 	Revoked *bool `json:"revoked"`
 }

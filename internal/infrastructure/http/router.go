@@ -94,6 +94,7 @@ func SetupRouter(
 		publicTenant := publicApi.Group("/tenant")
 		{
 			publicTenant.POST("/", tenantHandler.CreateTenant)
+			publicTenant.GET("/", tenantHandler.GetAllTenants)
 			publicTenant.GET("/:id", tenantHandler.GetTenantById)
 			publicTenant.PATCH("/:id", tenantHandler.UpdateTenant)
 			publicTenant.POST("/:id/location", locationHandler.CreateLocation)

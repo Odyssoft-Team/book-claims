@@ -4,6 +4,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateUserDTO representa los datos para crear un usuario
+// swagger:model CreateUserDTO
 type CreateUserDTO struct {
 	TenantID   uuid.UUID `json:"tenant_id" validate:"required"`
 	RoleID     uuid.UUID `json:"role_id" validate:"required"`
@@ -18,7 +20,8 @@ type CreateUserDTO struct {
 	IsActive   bool      `json:"is_active"`
 }
 
-// DTO de entrada para actualizar un usuario
+// UpdateUserDTO representa campos opcionales para actualizar usuario
+// swagger:model UpdateUserDTO
 type UpdateUserDTO struct {
 	FirstName  *string `json:"first_name"`
 	LastName   *string `json:"last_name"`
@@ -31,7 +34,8 @@ type UpdateUserDTO struct {
 	RoleID     *uuid.UUID
 }
 
-// DTO de salida para obtener un usuario
+// UserResponseDTO representa la respuesta del usuario
+// swagger:model UserResponseDTO
 type UserResponseDTO struct {
 	ID         uuid.UUID `json:"user_id"`
 	TenantID   uuid.UUID `json:"tenant_id"`
