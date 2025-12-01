@@ -4,32 +4,31 @@ Sistema de gestión de reclamos con arquitectura multi-tenant desarrollado en Go
 
 ## 📋 Descripción
 
-Book Claims API es una aplicación para la gestión de reclamos que permite a diferentes organizaciones (tenants) manejar sus quejas y reclamos de manera independiente y segura.
+Book Claims API permite a organizaciones (tenants) gestionar reclamos y quejas de forma aislada.
 
 ## 🚀 Características
 
-- **Multi-tenant**: Soporte para múltiples organizaciones
-- **Autenticación JWT**: Sistema de autenticación con tokens de acceso y refresh
-- **API Keys**: Control de acceso mediante claves API
-- **Gestión de Roles**: Sistema de roles por tenant
-- **Ubicaciones**: Manejo de ubicaciones/sucursales por tenant
-- **Reportes**: Generación de reportes resumen
+- Multi-tenant
+- Autenticación JWT (access + refresh)
+- API Keys para endpoints públicos
+- Gestión de roles por tenant
+- Ubicaciones por tenant
+- Reportes resumen
 
 ## 🔧 Tecnologías
 
-- **Go 1.21+**
-- **Gin Framework**: Framework web
-- **Zap Logger**: Sistema de logging
-- **JWT**: Autenticación
-- **UUID**: Identificadores únicos
+- Go 1.21+
+- Gin Framework
+- Gorm + PostgreSQL
+- Zap Logger
+- UUID
 
-## 📡 API Endpoints
+## 📡 API Endpoints (resumen)
 
 ### Públicos (sin autenticación)
 - `POST /api/v1/tenant` - Crear tenant
 - `GET /api/v1/tenant/:id` - Obtener tenant
-- `PATCH /api/v1/tenant/:id` - Actualizar tenant
-- `POST /api/v1/user/login` - Login de usuario (deprecated)
+- `PATCH /api/v1/tenant/:id` - Actualizar tenant (parcial)
 - `POST /api/v1/user` - Crear usuario
 - `POST /api/v1/role` - Crear rol
 - `POST /api/v1/auth/login` - Autenticación
@@ -37,13 +36,13 @@ Book Claims API es una aplicación para la gestión de reclamos que permite a di
 - `POST /api/v1/auth/logout` - Cerrar sesión
 
 ### Públicos con API Key
-- `POST /api/v1/complaint` - Crear reclamo
-- `GET /api/v1/complaint/code/:code` - Obtener reclamo por código
+- `POST /api/v1/complaint` - Crear reclamo (X-API-Key)
+- `GET /api/v1/complaint/code/:code` - Consultar reclamo por código público (X-API-Key)
 
-### Privados (requieren autenticación JWT)
+### Privados (requieren JWT)
 - `GET /api/v1/complaint` - Listar reclamos
 - `GET /api/v1/complaint/:id` - Obtener reclamo
-- `POST /api/v1/complaint/:id/action` - Actualizar reclamo
+- `POST /api/v1/complaint/:id/action` - Actualizar reclamo (guardar borrador / enviar respuesta / cambiar estado)
 - `GET /api/v1/report/summary` - Reporte resumen
 - `GET /api/v1/user/:id` - Obtener usuario
 - `GET /api/v1/role/:id` - Obtener rol
@@ -56,201 +55,88 @@ Book Claims API es una aplicación para la gestión de reclamos que permite a di
 - `POST /api/v1/tenant/:id/location` - Crear ubicación para tenant
 - `POST /api/v1/tenant/:id/api-keys` - Crear API key para tenant
 
-## 🏗️ Flujo de Configuración Inicial
+## 🏗️ Nuevos campos relevantes
 
-### Paso 1: Crear Tenant (Organización)
-```bash
-POST /api/v1/tenant
+- Tenant: country (Perú/España/Colombia/Chile), department, province, district, address, postal_code, logo_url.
+- Location: department, province, district, postal_code, type (FISICO/ONLINE/AMBOS), url.
+- Complaint: response_text, response_status (DRAFT|SENT), responder_id, response_sent_at. Estos permiten guardar borradores de respuesta y enviar respuestas oficiales.
+
+## 🔁 Flujo de respuestas en Complaints
+
+- Guardar borrador: PATCH/POST `/api/v1/complaint/{id}/action` con body { "response_text": "...", "response_status": "DRAFT" }
+- Enviar respuesta: `{ "response_text": "...", "response_status": "SENT" }` → la aplicación fijará `response_sent_at` y cambiará el estado del reclamo a `ATENDIDO` cuando aplique. Si no se envía `responder_id`, se usa el user_id del token.
+- Cambiar solo estado: `{ "new_status": "EN PROCESO" }`
+
+Ejemplo: enviar respuesta
+
+```json
+POST /api/v1/complaint/{id}/action
+Authorization: Bearer <token>
 Content-Type: application/json
-
 {
-  "name": "Mi Empresa S.A.",
-  "ruc": "12345678901",
-  "email_contact": "contacto@miempresa.com",
-  "phone_contact": "+51999999999",
-  "is_active": true
+  "response_text": "Respuesta oficial enviada al cliente.",
+  "response_status": "SENT"
 }
 ```
 
-**Respuesta**: Se obtiene el `tenant_id` que será necesario para los siguientes pasos.
+## 🏃‍♂️ Ejecución y migraciones
 
-### Paso 2: Crear Rol Administrativo
-```bash
-POST /api/v1/role
-Content-Type: application/json
-
-{
-  "tenant_id": "uuid-del-tenant",
-  "name": "Administrador",
-  "description": "Rol administrativo con acceso completo",
-  "is_system": false
-}
-```
-
-**Respuesta**: Se obtiene el `role_id` del rol administrativo.
-
-### Paso 3: Crear Ubicación Principal
-```bash
-POST /api/v1/tenant/{tenant_id}/location
-Content-Type: application/json
-
-{
-  "name": "Sede Principal",
-  "address": "Av. Principal 123",
-  "tenant_id": "uuid-del-tenant"
-}
-```
-
-**Respuesta**: Se obtiene el `location_id` de la ubicación principal.
-
-### Paso 4: Crear Usuario Administrativo
-```bash
-POST /api/v1/user
-Content-Type: application/json
-
-{
-  "tenant_id": "uuid-del-tenant",
-  "role_id": "uuid-del-rol",
-  "location_id": "uuid-de-ubicacion",
-  "email": "admin@miempresa.com",
-  "password": "password123",
-  "first_name": "Admin",
-  "last_name": "Sistema",
-  "full_name": "Admin Sistema",
-  "user_name": "admin",
-  "phone": "+51999999999",
-  "is_active": true
-}
-```
-
-### Paso 5: Crear API Key para Reclamos Públicos
-```bash
-POST /api/v1/tenant/{tenant_id}/api-keys
-Content-Type: application/json
-
-{
-  "name": "API Key Principal",
-  "tenant_id": "uuid-del-tenant"
-}
-```
-
-**Respuesta**: Se obtiene la API key que permitirá recibir reclamos desde formularios públicos.
-
-### Paso 6: Autenticación del Usuario
-```bash
-POST /api/v1/auth/login
-Content-Type: application/json
-
-{
-  "username": "admin",
-  "password": "password123"
-}
-```
-
-**Respuesta**: Se obtienen los tokens `access_token` y `refresh_token` para usar en endpoints privados.
-
-## 🔐 Autenticación
-
-### JWT Tokens
-- **Access Token**: Para autenticar peticiones a endpoints privados
-- **Refresh Token**: Para renovar access tokens expirados
-
-### API Keys
-- Se usan en endpoints públicos para crear reclamos
-- Se incluyen en el header: `X-API-Key: your-api-key`
-
-## 📝 Uso Operativo
-
-### Para recibir un reclamo (público):
-```bash
-POST /api/v1/complaint
-X-API-Key: your-api-key
-Content-Type: application/json
-
-{
-  "title": "Problema con el servicio",
-  "description": "Descripción del reclamo",
-  "customer_email": "cliente@email.com",
-  "customer_phone": "+51999999999"
-}
-```
-
-### Para gestionar reclamos (privado):
-```bash
-GET /api/v1/complaint
-Authorization: Bearer your-access-token
-```
-
-### Para consulta pública de reclamo:
-```bash
-GET /api/v1/complaint/code/ABC123
-X-API-Key: your-api-key
-```
-
-## 🏃‍♂️ Ejecución
+1. Instalar dependencias
 
 ```bash
-# Instalar dependencias
 go mod tidy
+```
 
-# Ejecutar la aplicación
-go run cmd/main.go
+2. Ejecutar migraciones automáticas (AutoMigrate) durante arranque:
+
+```bash
+RUN_MIGRATIONS=true go run cmd/app/main.go
+```
+
+AutoMigrate actualizará las tablas del proyecto. En producción se recomienda revisar y aplicar migraciones SQL controladas.
+
+3. Alternativamente aplicar manualmente el script SQL creado en:
+
+```
+internal/infrastructure/persistence/database/migrations/20251201_add_tenant_and_complaint_fields.sql
+```
+
+Aplica ese script a tu base de datos si necesitas control fino.
+
+4. Ejecutar la aplicación
+
+```bash
+go run cmd/app/main.go
 ```
 
 ## 📚 Documentación (Swagger)
 
-Se utiliza swaggo para generar la documentación OpenAPI. Instrucciones:
-
-1. Instala la herramienta `swag` si aún no la tienes:
+Instala la herramienta `swag` y genera docs:
 
 ```bash
-go install github.com/swaggo/swag/cmd/swag@latest
-```
-
-2. Genera la documentación:
-
-```bash
-cd c:\PetProject\book-claims
+go install github.com/swaggo/swag/cmd/swag@v1.16.6
+cd C:\PetProject\book-claims
 swag init -g cmd/app/main.go -o internal/infrastructure/http/docs
 ```
 
-3. Ejecuta la aplicación y accede a la UI en:
+Luego levanta la app y accede a:
 
 ```
 http://localhost:8080/swagger/index.html
 ```
 
-Nota: Ya dejé las anotaciones en los handlers y DTOs principales. Ejecuta `swag init` para generar los archivos `docs`.
+## 🔐 Notas de seguridad
 
-## 📊 Estructura del Proyecto
-
-```
-book-claims/
-├── internal/
-│   ├── core/
-│   │   ├── domain/model/     # Modelos de dominio
-│   │   └── port/            # Interfaces/puertos
-│   └── infrastructure/
-│       └── http/
-│           ├── handler/     # Controladores HTTP
-│           ├── dto/         # DTOs para HTTP
-│           ├── ctxutil/     # Utilidades de contexto
-│           └── router.go    # Configuración de rutas
-└── cmd/
-    └── main.go             # Punto de entrada
-```
-
-## 🔍 Notas Importantes
-
-1. **Orden de creación**: Es crucial seguir el orden: Tenant → Rol → Ubicación → Usuario → API Key
-2. **Multi-tenancy**: Cada tenant opera de forma independiente
-3. **Seguridad**: Los endpoints privados requieren JWT, los públicos de reclamos requieren API Key
-4. **Logging**: El sistema incluye logging detallado para auditoría y debugging
+- Endpoints privados requieren JWT.
+- Endpoints públicos para reclamos requieren `X-API-Key`.
+- Se recomienda restringir acciones de envío de respuestas a roles administrativos (puedo añadir RoleAuthorizationMiddleware si lo deseas).
 
 ## 🤝 Contribución
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+1. Fork
+2. Crear rama
+3. Commit y PR
+
+---
+
+Si quieres que actualice el README con ejemplos adicionales (migraciones SQL para producción, diagramas ER o política de roles), dime cuál y lo añado.
