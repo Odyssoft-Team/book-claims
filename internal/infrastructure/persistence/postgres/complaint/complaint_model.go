@@ -21,9 +21,16 @@ type ComplaintModel struct {
 	Description     string                `gorm:"type:text;not null"`
 	RequestedAction string                `gorm:"type:text"`
 	IsClosed        bool
-	CreatedAt       time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt       *time.Time `json:"updated_at" db:"updated_at"`
-	ResolvedAt      *time.Time `json:"resolved_at" db:"resolved_at"`
+
+	// Respuesta gestionada por usuarios
+	ResponseText   string     `gorm:"type:text"`
+	ResponseStatus string     `gorm:"type:varchar(20)"`
+	ResponderID    *uuid.UUID `gorm:"type:uuid"`
+	ResponseSentAt *time.Time `gorm:"type:timestamp"`
+
+	CreatedAt  time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt  *time.Time `json:"updated_at" db:"updated_at"`
+	ResolvedAt *time.Time `json:"resolved_at" db:"resolved_at"`
 }
 
 // Hooks opcionales
@@ -44,6 +51,10 @@ func (g *ComplaintModel) ToDomain() *model.Complaint {
 		CodePublic:      g.CodePublic,
 		Description:     g.Description,
 		RequestedAction: g.RequestedAction,
+		ResponseText:    g.ResponseText,
+		ResponseStatus:  model.ResponseStatus(g.ResponseStatus),
+		ResponderID:     g.ResponderID,
+		ResponseSentAt:  g.ResponseSentAt,
 		CreatedAt:       g.CreatedAt,
 		UpdatedAt:       g.UpdatedAt,
 		ResolvedAt:      g.ResolvedAt,
@@ -64,6 +75,10 @@ func ComplaintModelFromDomain(g *model.Complaint) *ComplaintModel {
 		CodePublic:      g.CodePublic,
 		Description:     g.Description,
 		RequestedAction: g.RequestedAction,
+		ResponseText:    g.ResponseText,
+		ResponseStatus:  string(g.ResponseStatus),
+		ResponderID:     g.ResponderID,
+		ResponseSentAt:  g.ResponseSentAt,
 		CreatedAt:       g.CreatedAt,
 		UpdatedAt:       g.UpdatedAt,
 		ResolvedAt:      g.ResolvedAt,

@@ -152,6 +152,20 @@ func (h *ComplaintHandler) UpdateComplaint(c *gin.Context) {
 		return
 	}
 
+	// Si no se proporcionó ResponderID y hay user_id en el contexto, usarlo
+	if updateDto.ResponderID == nil {
+		if v, exists := c.Get("user_id"); exists {
+			if uid, ok := v.(string); ok {
+				parsed, perr := uuid.Parse(uid)
+				if perr == nil {
+					updateDto.ResponderID = &parsed
+				}
+			} else if uid, ok := v.(uuid.UUID); ok {
+				updateDto.ResponderID = &uid
+			}
+		}
+	}
+
 	updatedComplaint, err := h.complaintUseCase.UpdateComplaint(c.Request.Context(), id, &updateDto)
 	if err != nil {
 		var appErr *apperror.AppError

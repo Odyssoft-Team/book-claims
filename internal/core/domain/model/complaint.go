@@ -32,6 +32,14 @@ const (
 	CALL    ComplaintSource = "CALL CENTER"
 )
 
+// ResponseStatus para el estado de la respuesta del sistema
+type ResponseStatus string
+
+const (
+	RESPONSE_DRAFT ResponseStatus = "DRAFT"
+	RESPONSE_SENT  ResponseStatus = "SENT"
+)
+
 type Complaint struct {
 	ID              uuid.UUID
 	TenantID        uuid.UUID
@@ -44,8 +52,15 @@ type Complaint struct {
 	CodePublic      string
 	Description     string
 	RequestedAction string
-	CreatedAt       time.Time
-	UpdatedAt       *time.Time
-	ResolvedAt      *time.Time
-	IsClosed        bool
+
+	// Campos de respuesta gestionados por usuarios del sistema
+	ResponseText   string
+	ResponseStatus ResponseStatus
+	ResponderID    *uuid.UUID
+	ResponseSentAt *time.Time
+
+	CreatedAt  time.Time
+	UpdatedAt  *time.Time
+	ResolvedAt *time.Time
+	IsClosed   bool
 }

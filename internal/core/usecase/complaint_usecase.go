@@ -7,6 +7,7 @@ import (
 	"claimbook-api/internal/infrastructure/http/mapper"
 	"claimbook-api/pkg/util/apperror"
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -74,7 +75,21 @@ func (uc *ComplaintUseCase) UpdateComplaint(ctx context.Context, id uuid.UUID, u
 		return nil, apperror.NewNotFoundError("Complaint not found")
 	}
 
+	// Aplicar cambios desde DTO
 	mapper.UpdateComplaintFromDTO(complaint, *updateDTO)
+
+	// Si la respuesta fue enviada, fijar metadata
+	if updateDTO.ResponseStatus != nil && *updateDTO.ResponseStatus == string(model.RESPONSE_SENT) {
+		now := time.Now().UTC()
+		complaint.ResponseSentAt = &now
+		// si no se proporcionó ResponderID en DTO, intentar obtener de contexto (no disponible aquí)
+		// cambiar estado a ATENDIDO si está en RECIBIDO/EVALUACION/PROCESO
+		if complaint.Status == model.RECIBIDO || complaint.Status == model.EVALUACION || complaint.Status == model.PROCESO {
+			complaint.Status = model.ATENDIDO
+		}
+	}
+
+	// new_status ya fue aplicado en mapper
 
 	updated, err := uc.complaintRepo.UpdateComplaint(ctx, complaint)
 	if err != nil {

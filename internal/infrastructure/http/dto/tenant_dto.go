@@ -12,6 +12,17 @@ type CreateTenantDTO struct {
 	EmailContact string `json:"email_contact" validate:"required,email"`
 	PhoneContact string `json:"phone_contact" validate:"required"`
 	IsActive     bool   `json:"is_active"`
+
+	// País - valores permitidos: "Perú", "España", "Colombia", "Chile"
+	Country string `json:"country" binding:"omitempty,oneof=Perú España Colombia Chile"`
+
+	// Dirección y branding
+	Department string `json:"department" binding:"omitempty"`
+	Province   string `json:"province" binding:"omitempty"`
+	District   string `json:"district" binding:"omitempty"`
+	Address    string `json:"address" binding:"omitempty"`
+	PostalCode string `json:"postal_code" binding:"omitempty"`
+	LogoURL    string `json:"logo_url" binding:"omitempty"`
 }
 
 // UpdateTenantDTO representa los campos opcionales para actualizar un tenant
@@ -23,6 +34,17 @@ type UpdateTenantDTO struct {
 	PhoneContact *string `json:"phone_contact" binding:"omitempty"`
 	IsActive     *bool   `json:"is_active" binding:"omitempty"`
 	IsConfirm    *bool   `json:"is_confirm" binding:"omitempty"`
+
+	// País opcional
+	Country *string `json:"country" binding:"omitempty,oneof=Perú España Colombia Chile"`
+
+	// Dirección y branding opcionales
+	Department *string `json:"department" binding:"omitempty"`
+	Province   *string `json:"province" binding:"omitempty"`
+	District   *string `json:"district" binding:"omitempty"`
+	Address    *string `json:"address" binding:"omitempty"`
+	PostalCode *string `json:"postal_code" binding:"omitempty"`
+	LogoURL    *string `json:"logo_url" binding:"omitempty"`
 }
 
 // TenantResponseDTO representa la respuesta de un tenant
@@ -34,8 +56,17 @@ type TenantResponseDTO struct {
 	EmailContact string    `json:"email_contact"`
 	PhoneContact string    `json:"phone_contact"`
 	IsActive     bool      `json:"is_active"`
-	CreatedAt    string    `json:"created_at"`
-	UpdatedAt    string    `json:"updated_at"`
+
+	Country    string `json:"country"`
+	Department string `json:"department"`
+	Province   string `json:"province"`
+	District   string `json:"district"`
+	Address    string `json:"address"`
+	PostalCode string `json:"postal_code"`
+	LogoURL    string `json:"logo_url"`
+
+	CreatedAt string `json:"created_at"`
+	UpdatedAt string `json:"updated_at"`
 }
 
 // Ejemplo de CreateTenantDTO

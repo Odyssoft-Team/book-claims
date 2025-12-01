@@ -15,7 +15,14 @@ type TenantModel struct {
 	EmailContact   string    `gorm:"column:tenant_email_contact;not null;unique;index"`
 	PhoneContact   string    `gorm:"column:tenant_phone_contact;not null"`
 	IsConfirm      bool      `gorm:"column:is_confirm; notnull;default:false"`
-	IsActive       bool      `gorm:"column:is_active;not null;default:false"`
+	IsActive       bool      `gorm:"column:is_active; not null;default:false"`
+	Country        string    `gorm:"column:country;type:varchar(50);default:''"`
+	Department     string    `gorm:"column:department;type:varchar(100);default:''"`
+	Province       string    `gorm:"column:province;type:varchar(100);default:''"`
+	District       string    `gorm:"column:district;type:varchar(100);default:''"`
+	Address        string    `gorm:"column:address;type:varchar(255);default:''"`
+	PostalCode     string    `gorm:"column:postal_code;type:varchar(20);default:''"`
+	LogoURL        string    `gorm:"column:logo_url;type:varchar(255);default:''"`
 	CreatedAt      time.Time `gorm:"column:created_at;type:timestamptz;not null"`
 	UpdatedAt      time.Time `gorm:"column:updated_at;type:timestamptz;not null"`
 	gorm.DeletedAt `gorm:"column:deleted_at;index"`
@@ -30,6 +37,13 @@ func (t *TenantModel) ToDomain() *model.Tenant {
 		PhoneContact: t.PhoneContact,
 		IsConfirm:    t.IsConfirm,
 		IsActive:     t.IsActive,
+		Country:      model.Country(t.Country),
+		Department:   t.Department,
+		Province:     t.Province,
+		District:     t.District,
+		Address:      t.Address,
+		PostalCode:   t.PostalCode,
+		LogoURL:      t.LogoURL,
 		CreatedAt:    t.CreatedAt,
 		UpdatedAt:    t.UpdatedAt,
 	}
@@ -44,6 +58,13 @@ func TenantModelFromDomain(t *model.Tenant) *TenantModel {
 		PhoneContact: t.PhoneContact,
 		IsConfirm:    t.IsConfirm,
 		IsActive:     t.IsActive,
+		Country:      string(t.Country),
+		Department:   t.Department,
+		Province:     t.Province,
+		District:     t.District,
+		Address:      t.Address,
+		PostalCode:   t.PostalCode,
+		LogoURL:      t.LogoURL,
 		CreatedAt:    t.CreatedAt,
 		UpdatedAt:    t.UpdatedAt,
 	}

@@ -12,7 +12,12 @@ type LocationModel struct {
 	TenantID   uuid.UUID `gorm:"type:uuid;not null;index"`
 	Name       string    `gorm:"type:varchar(100);not null"`
 	Address    string    `gorm:"type:varchar(255);not null"`
+	Department string    `gorm:"type:varchar(100);"`
+	Province   string    `gorm:"type:varchar(100);"`
+	District   string    `gorm:"type:varchar(100);"`
+	PostalCode string    `gorm:"type:varchar(20);"`
 	Type       string    `gorm:"type:varchar(100);not null"`
+	URL        string    `gorm:"type:varchar(255);"`
 	IsActive   bool      `gorm:"type:boolean;default:true;not null"`
 	PublicCode string    `gorm:"type:varchar(50);uniqueIndex;not null"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
@@ -25,7 +30,12 @@ func (u *LocationModel) ToDomain() *model.Location {
 		TenantID:   u.TenantID,
 		Name:       u.Name,
 		Address:    u.Address,
-		Type:       u.Type,
+		Department: u.Department,
+		Province:   u.Province,
+		District:   u.District,
+		PostalCode: u.PostalCode,
+		Type:       model.EstablishmentType(u.Type),
+		URL:        u.URL,
 		IsActive:   u.IsActive,
 		PublicCode: u.PublicCode,
 		CreatedAt:  u.CreatedAt,
@@ -38,7 +48,12 @@ func LocationModelFromDomain(u *model.Location) *LocationModel {
 		TenantID:   u.TenantID,
 		Name:       u.Name,
 		Address:    u.Address,
-		Type:       u.Type,
+		Department: u.Department,
+		Province:   u.Province,
+		District:   u.District,
+		PostalCode: u.PostalCode,
+		Type:       string(u.Type),
+		URL:        u.URL,
 		IsActive:   u.IsActive,
 		PublicCode: u.PublicCode,
 		CreatedAt:  u.CreatedAt,

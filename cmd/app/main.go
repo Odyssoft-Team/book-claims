@@ -18,7 +18,6 @@ import (
 	"claimbook-api/internal/infrastructure/persistence/postgres/user"
 
 	"log"
-	"net/http"
 	"os"
 
 	"go.uber.org/zap"
@@ -100,9 +99,7 @@ func main() {
 	r := http.SetupRouter(complaintHandler, userHandler, roleHandler, locationHandler, sessionHandler, tenantHandler, apiKeyHandler, apiKeyRepo, zapLogger, httpLogger, AuthLogger)
 
 	// Montar Swagger UI en /swagger/*any usando http-swagger
-	r.GET("/swagger/*any", func(c *gin.Context) {
-		httpSwagger.Handler(&httpSwagger.Config{URL: "/swagger/doc.json"})(c.Writer, c.Request)
-	})
+	r.GET("/swagger/*any", gin.WrapH(httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json"))))
 
 	port := os.Getenv("PORT")
 	if port == "" {
