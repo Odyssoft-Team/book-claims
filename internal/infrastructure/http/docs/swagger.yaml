@@ -1,0 +1,1187 @@
+basePath: /api/v1
+definitions:
+  dto.AuthRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.AuthResponse:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    type: object
+  dto.CreateApiKeyDTO:
+    properties:
+      api_key:
+        type: string
+      is_active:
+        type: boolean
+      location_id:
+        type: string
+      scope:
+        type: string
+      tenant_id:
+        type: string
+    required:
+    - api_key
+    - location_id
+    - scope
+    - tenant_id
+    type: object
+  dto.CreateComplaintDTO:
+    properties:
+      api_key_id:
+        type: string
+      category_id:
+        type: string
+      code_public:
+        type: string
+      description:
+        type: string
+      is_closed:
+        type: boolean
+      location_id:
+        type: string
+      requested_action:
+        type: string
+      source:
+        enum:
+        - WEB
+        - OFICINA
+        - API
+        - CALL
+        type: string
+      status:
+        enum:
+        - RECIBIDO
+        - EVALUACION
+        - PROCESO
+        - ATENDIDO
+        - CERRADO
+        type: string
+      tenant_id:
+        type: string
+      type:
+        enum:
+        - QUEJA
+        - RECLAMO
+        type: string
+    required:
+    - category_id
+    - description
+    - location_id
+    - source
+    - status
+    - tenant_id
+    - type
+    type: object
+  dto.CreateLocationDTO:
+    properties:
+      address:
+        maxLength: 200
+        minLength: 5
+        type: string
+      department:
+        type: string
+      district:
+        type: string
+      is_active:
+        type: boolean
+      name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      postal_code:
+        type: string
+      province:
+        type: string
+      public_code:
+        maxLength: 50
+        minLength: 2
+        type: string
+      tenant_id:
+        type: string
+      type:
+        enum:
+        - FISICO
+        - ONLINE
+        - AMBOS
+        type: string
+      url:
+        type: string
+    required:
+    - address
+    - department
+    - district
+    - name
+    - province
+    - public_code
+    - tenant_id
+    - type
+    type: object
+  dto.CreateRoleDTO:
+    properties:
+      description:
+        type: string
+      is_system:
+        type: boolean
+      name:
+        type: string
+      tenant_id:
+        type: string
+    required:
+    - name
+    - tenant_id
+    type: object
+  dto.CreateTenantDTO:
+    properties:
+      address:
+        type: string
+      country:
+        description: 'País - valores permitidos: "Perú", "España", "Colombia", "Chile"'
+        enum:
+        - Perú
+        - España
+        - Colombia
+        - Chile
+        type: string
+      department:
+        description: Dirección y branding
+        type: string
+      district:
+        type: string
+      email_contact:
+        type: string
+      is_active:
+        type: boolean
+      logo_url:
+        type: string
+      name:
+        type: string
+      phone_contact:
+        type: string
+      postal_code:
+        type: string
+      province:
+        type: string
+      ruc:
+        type: string
+    required:
+    - email_contact
+    - name
+    - phone_contact
+    - ruc
+    type: object
+  dto.CreateUserDTO:
+    properties:
+      email:
+        type: string
+      first_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      full_name:
+        maxLength: 200
+        minLength: 2
+        type: string
+      is_active:
+        type: boolean
+      last_name:
+        maxLength: 100
+        minLength: 2
+        type: string
+      location_id:
+        type: string
+      password:
+        maxLength: 50
+        minLength: 8
+        type: string
+      phone:
+        maxLength: 20
+        minLength: 7
+        type: string
+      role_id:
+        type: string
+      tenant_id:
+        type: string
+      user_name:
+        maxLength: 50
+        minLength: 5
+        type: string
+    required:
+    - email
+    - first_name
+    - full_name
+    - last_name
+    - location_id
+    - password
+    - role_id
+    - tenant_id
+    - user_name
+    type: object
+  dto.UpdateComplaintDTO:
+    properties:
+      new_status:
+        description: new_status permite cambiar status sin respuesta
+        type: string
+      responder_id:
+        type: string
+      response_status:
+        description: DRAFT o SENT
+        type: string
+      response_text:
+        description: Respuesta del sistema
+        type: string
+      status:
+        enum:
+        - RECIBIDO
+        - EN EVALUACION
+        - PROCESO
+        - ATENDIDO
+        - CERRADO
+        type: string
+    required:
+    - status
+    type: object
+  dto.UpdateTenantDTO:
+    properties:
+      address:
+        type: string
+      country:
+        description: País opcional
+        enum:
+        - Perú
+        - España
+        - Colombia
+        - Chile
+        type: string
+      department:
+        description: Dirección y branding opcionales
+        type: string
+      district:
+        type: string
+      email_contact:
+        type: string
+      is_active:
+        type: boolean
+      is_confirm:
+        type: boolean
+      logo_url:
+        type: string
+      name:
+        type: string
+      phone_contact:
+        type: string
+      postal_code:
+        type: string
+      province:
+        type: string
+      ruc:
+        type: string
+    type: object
+  model.ApiKey:
+    properties:
+      apiKey:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      locationID:
+        type: string
+      scope:
+        type: string
+      tenantID:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.Complaint:
+    properties:
+      apiKeyID:
+        type: string
+      categoryID:
+        type: string
+      codePublic:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isClosed:
+        type: boolean
+      locationID:
+        type: string
+      requestedAction:
+        type: string
+      resolvedAt:
+        type: string
+      responderID:
+        type: string
+      responseSentAt:
+        type: string
+      responseStatus:
+        $ref: '#/definitions/model.ResponseStatus'
+      responseText:
+        description: Campos de respuesta gestionados por usuarios del sistema
+        type: string
+      source:
+        $ref: '#/definitions/model.ComplaintSource'
+      status:
+        $ref: '#/definitions/model.ComplaintStatus'
+      tenantID:
+        type: string
+      type:
+        $ref: '#/definitions/model.ComplaintType'
+      updatedAt:
+        type: string
+    type: object
+  model.ComplaintSource:
+    enum:
+    - WEB PUBLICA
+    - OFICINA FISICA
+    - API
+    - CALL CENTER
+    type: string
+    x-enum-varnames:
+    - WEB
+    - OFICINA
+    - API
+    - CALL
+  model.ComplaintStatus:
+    enum:
+    - RECIBIDO
+    - EN EVALUACION
+    - EN PROCESO
+    - ATENDIDO
+    - CERRADO
+    type: string
+    x-enum-varnames:
+    - RECIBIDO
+    - EVALUACION
+    - PROCESO
+    - ATENDIDO
+    - CERRADO
+  model.ComplaintType:
+    enum:
+    - RECLAMO
+    - QUEJA
+    type: string
+    x-enum-varnames:
+    - RECLAMO
+    - QUEJA
+  model.Country:
+    enum:
+    - Perú
+    - España
+    - Colombia
+    - Chile
+    type: string
+    x-enum-varnames:
+    - CountryPeru
+    - CountryEspana
+    - CountryColombia
+    - CountryChile
+  model.EstablishmentType:
+    enum:
+    - FISICO
+    - ONLINE
+    - AMBOS
+    type: string
+    x-enum-varnames:
+    - EstablishmentPhysical
+    - EstablishmentOnline
+    - EstablishmentBoth
+  model.Location:
+    properties:
+      address:
+        type: string
+      createdAt:
+        type: string
+      department:
+        type: string
+      district:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      name:
+        type: string
+      postalCode:
+        type: string
+      province:
+        type: string
+      publicCode:
+        type: string
+      tenantID:
+        type: string
+      type:
+        $ref: '#/definitions/model.EstablishmentType'
+      updatedAt:
+        type: string
+      url:
+        type: string
+    type: object
+  model.ResponseStatus:
+    enum:
+    - DRAFT
+    - SENT
+    type: string
+    x-enum-varnames:
+    - RESPONSE_DRAFT
+    - RESPONSE_SENT
+  model.Role:
+    properties:
+      createdAt:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      isSystem:
+        type: boolean
+      name:
+        type: string
+      tenantID:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.SummaryReport:
+    properties:
+      pending:
+        type: integer
+      resolved:
+        type: integer
+      slaCompliance:
+        type: string
+      totalComplaints:
+        type: integer
+    type: object
+  model.Tenant:
+    properties:
+      address:
+        description: Dirección detallada
+        type: string
+      country:
+        allOf:
+        - $ref: '#/definitions/model.Country'
+        description: País
+      createdAt:
+        type: string
+      department:
+        description: Nuevos campos para dirección y branding
+        type: string
+      district:
+        description: Distrito
+        type: string
+      emailContact:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      isConfirm:
+        type: boolean
+      logoURL:
+        description: URL del logo (opcional)
+        type: string
+      name:
+        type: string
+      phoneContact:
+        type: string
+      postalCode:
+        description: Código postal (opcional)
+        type: string
+      province:
+        description: Provincia
+        type: string
+      ruc:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.User:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      fullName:
+        type: string
+      id:
+        type: string
+      isActive:
+        type: boolean
+      lastName:
+        type: string
+      locationID:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      roleID:
+        type: string
+      roleName:
+        type: string
+      tenantID:
+        type: string
+      updatedAt:
+        type: string
+      userName:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: API para gestión de reclamos multi-tenant
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: Book Claims API
+  version: "1.0"
+paths:
+  /api_key/{id}:
+    get:
+      description: Retrieve API key by UUID
+      parameters:
+      - description: ApiKey ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.ApiKey'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get API key by ID
+      tags:
+      - api_key
+  /complaint:
+    get:
+      description: List all complaints (requires auth)
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Complaint'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List complaints
+      tags:
+      - complaint
+    post:
+      consumes:
+      - application/json
+      description: Create a complaint (public endpoint using API Key)
+      parameters:
+      - description: Complaint data
+        in: body
+        name: complaint
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateComplaintDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Complaint'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a complaint
+      tags:
+      - complaint
+  /complaint/{id}:
+    get:
+      description: Retrieve complaint by UUID
+      parameters:
+      - description: Complaint ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Complaint'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get complaint by ID
+      tags:
+      - complaint
+  /complaint/{id}/action:
+    post:
+      consumes:
+      - application/json
+      description: Update complaint status or details
+      parameters:
+      - description: Complaint ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update data
+        in: body
+        name: complaint
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateComplaintDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Complaint'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update complaint
+      tags:
+      - complaint
+  /complaint/code/{code}:
+    get:
+      description: Retrieve a complaint using public code (API Key required)
+      parameters:
+      - description: Public code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Complaint'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get complaint by public code
+      tags:
+      - complaint
+  /location/{id}:
+    get:
+      description: Retrieve location by UUID
+      parameters:
+      - description: Location ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Location'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get location by ID
+      tags:
+      - location
+  /report/summary:
+    get:
+      description: Returns summary report data
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.SummaryReport'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get summary report
+      tags:
+      - report
+  /role:
+    post:
+      consumes:
+      - application/json
+      description: Create role
+      parameters:
+      - description: Role data
+        in: body
+        name: role
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateRoleDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Role'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a role for a tenant
+      tags:
+      - role
+  /role/{id}:
+    get:
+      description: Retrieve role by UUID
+      parameters:
+      - description: Role ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Role'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get role by ID
+      tags:
+      - role
+  /tenant:
+    get:
+      description: Get all tenants
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Tenant'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List tenants
+      tags:
+      - tenant
+    post:
+      consumes:
+      - application/json
+      description: Create tenant with the provided data
+      parameters:
+      - description: Tenant data
+        in: body
+        name: tenant
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateTenantDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Tenant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new tenant
+      tags:
+      - tenant
+  /tenant/{id}:
+    get:
+      description: Get a tenant using its ID
+      parameters:
+      - description: Tenant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Tenant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get tenant by ID
+      tags:
+      - tenant
+    patch:
+      consumes:
+      - application/json
+      description: Update tenant fields (activate tenant etc.)
+      parameters:
+      - description: Tenant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Tenant update data
+        in: body
+        name: tenant
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateTenantDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Tenant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update tenant
+      tags:
+      - tenant
+  /tenant/{id}/api-keys:
+    post:
+      consumes:
+      - application/json
+      description: Create an API key for a specific tenant
+      parameters:
+      - description: Tenant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: API Key data
+        in: body
+        name: apiKey
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateApiKeyDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.ApiKey'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create API Key for tenant
+      tags:
+      - api_key
+  /tenant/{id}/location:
+    post:
+      consumes:
+      - application/json
+      description: Create location under a tenant
+      parameters:
+      - description: Tenant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: 9Location data
+        in: body
+        name: location
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateLocationDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Location'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a location for a tenant
+      tags:
+      - location
+  /tenant/{id}/locations:
+    get:
+      description: Retrieve all locations under a tenant
+      parameters:
+      - description: Tenant ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Location'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get locations by tenant ID
+      tags:
+      - location
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user for a tenant
+      parameters:
+      - description: User data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a user
+      tags:
+      - user
+  /user/{id}:
+    get:
+      description: Retrieve user by UUID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user by ID
+      tags:
+      - user
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user and return tokens
+      parameters:
+      - description: Credentials
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/dto.AuthRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.AuthResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: User login
+      tags:
+      - auth
+swagger: "2.0"

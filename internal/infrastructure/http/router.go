@@ -99,6 +99,7 @@ func SetupRouter(
 			publicTenant.PATCH("/:id", tenantHandler.UpdateTenant)
 			publicTenant.POST("/:id/location", locationHandler.CreateLocation)
 			publicTenant.POST("/:id/api-keys", apiKeyHandler.CreateApiKey)
+			publicTenant.GET("/:id/locations", locationHandler.GetLocationsByTenant)
 		}
 	}
 	{

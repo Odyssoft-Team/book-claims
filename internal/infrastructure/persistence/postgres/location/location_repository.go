@@ -28,7 +28,7 @@ func (r *locationPGRepository) CreateLocation(ctx context.Context, user *model.L
 
 func (r *locationPGRepository) GetLocationById(ctx context.Context, id uuid.UUID) (*model.Location, error) {
 	var dbModel LocationModel
-	if err := r.db.WithContext(ctx).First(&dbModel, "id", id).Error; err != nil {
+	if err := r.db.WithContext(ctx).First(&dbModel, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
@@ -51,6 +51,18 @@ func (r *locationPGRepository) GetLocations(ctx context.Context) ([]*model.Locat
 		return nil, err
 	}
 
+	var result []*model.Location
+	for _, m := range dbModels {
+		result = append(result, m.ToDomain())
+	}
+	return result, nil
+}
+
+func (r *locationPGRepository) GetLocationsByTenant(ctx context.Context, tenantID uuid.UUID) ([]*model.Location, error) {
+	var dbModels []LocationModel
+	if err := r.db.WithContext(ctx).Where("tenant_id = ?", tenantID).Find(&dbModels).Error; err != nil {
+		return nil, err
+	}
 	var result []*model.Location
 	for _, m := range dbModels {
 		result = append(result, m.ToDomain())

@@ -1,10 +1,10 @@
 # Book Claims API
 
-Sistema de gestión de reclamos con arquitectura multi-tenant desarrollado en Go con Gin Framework.
+Sistema de gestión de reclamos multi-tenant desarrollado en Go con Gin.
 
 ## 📋 Descripción
 
-Book Claims API permite a organizaciones (tenants) gestionar reclamos y quejas de forma aislada.
+Book Claims API permite a organizaciones (tenants) gestionar quejas y reclamos de forma aislada.
 
 ## 🚀 Características
 
@@ -23,14 +23,12 @@ Book Claims API permite a organizaciones (tenants) gestionar reclamos y quejas d
 - Zap Logger
 - UUID
 
-## 📡 API Endpoints (resumen)
+## 📡 Endpoints (resumen)
 
-### Públicos (sin autenticación)
+### Públicos
 - `POST /api/v1/tenant` - Crear tenant
 - `GET /api/v1/tenant/:id` - Obtener tenant
-- `PATCH /api/v1/tenant/:id` - Actualizar tenant (parcial)
-- `POST /api/v1/user` - Crear usuario
-- `POST /api/v1/role` - Crear rol
+- `PATCH /api/v1/tenant/:id` - Actualizar tenant
 - `POST /api/v1/auth/login` - Autenticación
 - `POST /api/v1/auth/refresh` - Renovar token
 - `POST /api/v1/auth/logout` - Cerrar sesión
@@ -39,45 +37,41 @@ Book Claims API permite a organizaciones (tenants) gestionar reclamos y quejas d
 - `POST /api/v1/complaint` - Crear reclamo (X-API-Key)
 - `GET /api/v1/complaint/code/:code` - Consultar reclamo por código público (X-API-Key)
 
-### Privados (requieren JWT)
+### Privados (JWT)
 - `GET /api/v1/complaint` - Listar reclamos
 - `GET /api/v1/complaint/:id` - Obtener reclamo
 - `POST /api/v1/complaint/:id/action` - Actualizar reclamo (guardar borrador / enviar respuesta / cambiar estado)
 - `GET /api/v1/report/summary` - Reporte resumen
 - `GET /api/v1/user/:id` - Obtener usuario
 - `GET /api/v1/role/:id` - Obtener rol
-- `POST /api/v1/location` - Crear ubicación
-- `GET /api/v1/location/:id` - Obtener ubicación
+- `POST /api/v1/location` - Crear ubicación (se utiliza ruta por tenant; ver nota)
+- `GET /api/v1/location/:id` - Obtener ubicación por location_id
 - `POST /api/v1/api_key` - Crear API key
 - `GET /api/v1/api_key/:id` - Obtener API key
 
 ### Específicos por Tenant
-- `POST /api/v1/tenant/:id/location` - Crear ubicación para tenant
+- `POST /api/v1/tenant/:id/location` - Crear ubicación para tenant (tenant_id en path)
+- `GET /api/v1/tenant/:id/locations` - Listar ubicaciones de un tenant
 - `POST /api/v1/tenant/:id/api-keys` - Crear API key para tenant
 
-## 🏗️ Nuevos campos relevantes
+## 🏗 Nuevos campos relevantes
 
 - Tenant: country (Perú/España/Colombia/Chile), department, province, district, address, postal_code, logo_url.
 - Location: department, province, district, postal_code, type (FISICO/ONLINE/AMBOS), url.
-- Complaint: response_text, response_status (DRAFT|SENT), responder_id, response_sent_at. Estos permiten guardar borradores de respuesta y enviar respuestas oficiales.
+- Complaint: response_text, response_status (DRAFT|SENT), responder_id, response_sent_at.
 
 ## 🔁 Flujo de respuestas en Complaints
 
-- Guardar borrador: PATCH/POST `/api/v1/complaint/{id}/action` con body { "response_text": "...", "response_status": "DRAFT" }
-- Enviar respuesta: `{ "response_text": "...", "response_status": "SENT" }` → la aplicación fijará `response_sent_at` y cambiará el estado del reclamo a `ATENDIDO` cuando aplique. Si no se envía `responder_id`, se usa el user_id del token.
-- Cambiar solo estado: `{ "new_status": "EN PROCESO" }`
+- Guardar borrador: POST `/api/v1/complaint/{id}/action` con `{ "response_text": "...", "response_status": "DRAFT" }` → guarda texto sin cambiar estado.
+- Enviar respuesta: `{ "response_text": "...", "response_status": "SENT" }` → fija `response_sent_at`, asigna `responder_id` (si no viene, se toma del token) y cambia status a `ATENDIDO` si aplica.
+- Cambiar sólo estado: `{ "new_status": "EN PROCESO" }`.
 
-Ejemplo: enviar respuesta
+## 🔐 Notas de seguridad / tenant scoping
 
-```json
-POST /api/v1/complaint/{id}/action
-Authorization: Bearer <token>
-Content-Type: application/json
-{
-  "response_text": "Respuesta oficial enviada al cliente.",
-  "response_status": "SENT"
-}
-```
+- El endpoint `POST /api/v1/tenant/:id/location` toma el tenant_id desde el path y lo usa como fuente de verdad.
+- `GET /api/v1/location/:id` usa location_id (no tenant_id).
+- `GET /api/v1/tenant/:id/locations` lista ubicaciones del tenant.
+- Recomendado: usar JWT o API Key que incluya tenant_id y verificar coincidencia entre token y path para evitar accesos entre tenants.
 
 ## 🏃‍♂️ Ejecución y migraciones
 
@@ -87,21 +81,19 @@ Content-Type: application/json
 go mod tidy
 ```
 
-2. Ejecutar migraciones automáticas (AutoMigrate) durante arranque:
+2. Ejecutar migraciones automáticas (AutoMigrate) al arrancar:
 
 ```bash
 RUN_MIGRATIONS=true go run cmd/app/main.go
 ```
 
-AutoMigrate actualizará las tablas del proyecto. En producción se recomienda revisar y aplicar migraciones SQL controladas.
-
-3. Alternativamente aplicar manualmente el script SQL creado en:
+3. Migración manual SQL (opcional):
 
 ```
 internal/infrastructure/persistence/database/migrations/20251201_add_tenant_and_complaint_fields.sql
 ```
 
-Aplica ese script a tu base de datos si necesitas control fino.
+Aplica ese script si prefieres control explícito.
 
 4. Ejecutar la aplicación
 
@@ -111,32 +103,61 @@ go run cmd/app/main.go
 
 ## 📚 Documentación (Swagger)
 
-Instala la herramienta `swag` y genera docs:
+Generar docs (desde la raíz del repo):
 
 ```bash
-go install github.com/swaggo/swag/cmd/swag@v1.16.6
-cd C:\PetProject\book-claims
-swag init -g cmd/app/main.go -o internal/infrastructure/http/docs
+# con swag instalado
+swag init -g ./cmd/app/main.go -o internal/infrastructure/http/docs
+
+# o sin instalar
+go run github.com/swaggo/swag/cmd/swag@v1.16.6 init -g ./cmd/app/main.go -o internal/infrastructure/http/docs
 ```
 
-Luego levanta la app y accede a:
+También incluí scripts para facilitarlo:
+- scripts/generate_swagger.sh
+- scripts/generate_swagger.ps1
+
+Después de generar, abre la UI en:
 
 ```
 http://localhost:8080/swagger/index.html
 ```
 
-## 🔐 Notas de seguridad
+## 📝 Uso rápido: crear Location (ejemplo)
 
-- Endpoints privados requieren JWT.
-- Endpoints públicos para reclamos requieren `X-API-Key`.
-- Se recomienda restringir acciones de envío de respuestas a roles administrativos (puedo añadir RoleAuthorizationMiddleware si lo deseas).
+POST http://localhost:8080/api/v1/tenant/{tenant_id}/location
+Headers: Content-Type: application/json
+Body mínimo:
 
-## 🤝 Contribución
+{
+  "name":"Sede Principal",
+  "address":"Av. Principal 123",
+  "department":"Lima",
+  "province":"Lima",
+  "district":"Miraflores",
+  "type":"FISICO",
+  "public_code":"SEDE-001"
+}
 
-1. Fork
-2. Crear rama
-3. Commit y PR
+## 📚 Estructura del proyecto
+
+```
+book-claims/
+├── cmd/app/main.go
+├── internal/
+│   ├── core/
+│   │   └── domain/model/
+│   └── infrastructure/
+│       └── http/
+│           ├── handler/
+│           ├── dto/
+│           ├── docs/  # generado por swag
+│           └── router.go
+└── scripts/
+    ├── generate_swagger.sh
+    └── generate_swagger.ps1
+```
 
 ---
 
-Si quieres que actualice el README con ejemplos adicionales (migraciones SQL para producción, diagramas ER o política de roles), dime cuál y lo añado.
+Si quieres, añado ejemplos de payload para los endpoints de complaint (save/send) y sample responses.

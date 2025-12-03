@@ -79,3 +79,18 @@ func (uc *LocationUseCase) GetLocations(ctx context.Context) ([]dto.LocationResp
 
 	return responses, nil
 }
+
+func (uc *LocationUseCase) GetLocationsByTenant(ctx context.Context, tenantID uuid.UUID) ([]dto.LocationResponseDTO, error) {
+	locations, err := uc.locationRepo.GetLocationsByTenant(ctx, tenantID)
+	if err != nil {
+		return nil, apperror.NewInternalError("Failed to retrieve locations", err)
+	}
+	if len(locations) == 0 {
+		return nil, apperror.NewNotFoundError("No locations found for the tenant")
+	}
+	var resp []dto.LocationResponseDTO
+	for _, l := range locations {
+		resp = append(resp, mapper.LocationToResponseDTO(l))
+	}
+	return resp, nil
+}

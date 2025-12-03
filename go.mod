@@ -10,7 +10,7 @@ require (
 	github.com/swaggo/http-swagger v1.3.4
 
 	// Swagger dependencies (ajustadas)
-	github.com/swaggo/swag v1.16.6 // indirect
+	github.com/swaggo/swag v1.16.6
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.40.0
 	gopkg.in/natefinch/lumberjack.v2 v2.2.1

@@ -26,7 +26,7 @@ func NewLocationHandler(uc *usecase.LocationUseCase) *LocationHandler {
 // @Accept json
 // @Produce json
 // @Param id path string true "Tenant ID"
-// @Param location body dto.CreateLocationDTO true "Location data"
+// @Param location body dto.CreateLocationDTO true "9Location data"
 // @Success 201 {object} model.Location
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
@@ -96,4 +96,36 @@ func (h *LocationHandler) GetLocationById(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, location)
+}
+
+// GetLocationsByTenant godoc
+// @Summary Get locations by tenant ID
+// @Description Retrieve all locations under a tenant
+// @Tags location
+// @Produce json
+// @Param id path string true "Tenant ID"
+// @Success 200 {array} model.Location
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /tenant/{id}/locations [get]
+func (h *LocationHandler) GetLocationsByTenant(c *gin.Context) {
+	tenantIDStr := c.Param("id")
+	tenantID, err := uuid.Parse(tenantIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid tenant ID"})
+		return
+	}
+
+	locations, err := h.locationUseCase.GetLocationsByTenant(c.Request.Context(), tenantID)
+	if err != nil {
+		var appErr *apperror.AppError
+		if errors.As(err, &appErr) {
+			c.JSON(appErr.Code, gin.H{"error": appErr.Message})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, locations)
 }

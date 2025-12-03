@@ -23,6 +23,8 @@ import (
 	"go.uber.org/zap"
 
 	// Swagger
+	docs "claimbook-api/internal/infrastructure/http/docs"
+
 	"github.com/gin-gonic/gin"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
@@ -97,6 +99,14 @@ func main() {
 	tenantHandler := handler.NewTenantHandler(tenantUseCase)
 
 	r := http.SetupRouter(complaintHandler, userHandler, roleHandler, locationHandler, sessionHandler, tenantHandler, apiKeyHandler, apiKeyRepo, zapLogger, httpLogger, AuthLogger)
+
+	// Configure Swagger info (se generaron docs con swag)
+	docs.SwaggerInfo.Title = "Book Claims API"
+	docs.SwaggerInfo.Description = "API para gestión de reclamos multi-tenant"
+	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.Host = "localhost:8080"
+	docs.SwaggerInfo.BasePath = "/api/v1"
+	docs.SwaggerInfo.Schemes = []string{"http"}
 
 	// Montar Swagger UI en /swagger/*any usando http-swagger
 	r.GET("/swagger/*any", gin.WrapH(httpSwagger.Handler(httpSwagger.URL("/swagger/doc.json"))))
